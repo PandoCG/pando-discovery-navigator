@@ -1,0 +1,880 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<style>
+:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:14px}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+<title>Pando Discovery Navigator</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: sticky call bar; three columns on desktop (part rail | question cards | live readout); stacked on phones */
+:root{
+  --forest:#1D2E28; --forest-2:#2F4A40; --gold:#B8893B; --gold-soft:#F3E8D2;
+  --bg:#F6F5F0; --surface:#FFFFFF; --surface-2:#EEF0EA; --line:#D9DDD3;
+  --fg:#1B231F; --muted:#5D6A62; --on-forest:#F6F5F0;
+  --good:#2E7D4F; --warn:#B7791F; --bad:#B23A30;
+  --good-bg:#E3F1E8; --warn-bg:#FBF0DA; --bad-bg:#F8E1DE;
+  --display:'Poppins',ui-sans-serif,system-ui,'Segoe UI',Arial,sans-serif;
+  --body:'Poppins',ui-sans-serif,system-ui,'Segoe UI',Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --forest:#0F1A16; --forest-2:#9FC2B2; --gold:#D9AE62; --gold-soft:#3A3122;
+  --bg:#121815; --surface:#1A221E; --surface-2:#222C27; --line:#33403A;
+  --fg:#E7ECE8; --muted:#A3B0A8; --on-forest:#F1EEE6;
+  --good:#7CC79A; --warn:#E3B562; --bad:#EE8A80;
+  --good-bg:#1E3328; --warn-bg:#3A2F1C; --bad-bg:#3D2321; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --forest:#0F1A16; --forest-2:#9FC2B2; --gold:#D9AE62; --gold-soft:#3A3122;
+  --bg:#121815; --surface:#1A221E; --surface-2:#222C27; --line:#33403A;
+  --fg:#E7ECE8; --muted:#A3B0A8; --on-forest:#F1EEE6;
+  --good:#7CC79A; --warn:#E3B562; --bad:#EE8A80;
+  --good-bg:#1E3328; --warn-bg:#3A2F1C; --bad-bg:#3D2321; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:14px;line-height:1.5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--forest)}
+button,select,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--forest);color:var(--on-forest);
+  padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.bar-in{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;max-width:1440px;margin:0 auto}
+.brand{display:flex;flex-direction:column;min-width:0}
+.eyebrow{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:600}
+.brand h1{margin:0;font-size:18px;font-weight:600;letter-spacing:.01em}
+.prospect{flex:1 1 200px;min-width:0;max-width:300px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:6px;padding:7px 10px;color:var(--on-forest)}
+.prospect::placeholder{color:rgba(246,245,240,.55)}
+.timer{display:flex;align-items:center;gap:8px}
+.clock{font-variant-numeric:tabular-nums;font-size:20px;font-weight:600;min-width:62px}
+.tbtn{background:transparent;border:1px solid rgba(255,255,255,.3);color:var(--on-forest);border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12.5px}
+.tbtn:hover{border-color:var(--gold)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
+.chip{font-size:12px;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);white-space:nowrap}
+.chip b{color:var(--gold);font-weight:600}
+.cp{max-width:1440px;margin:8px auto 0;font-size:12.5px;color:rgba(246,245,240,.85);display:flex;gap:8px;align-items:baseline}
+.cp strong{color:var(--gold);font-weight:600;white-space:nowrap}
+
+.example{max-width:1440px;margin:12px auto 0;background:var(--gold-soft);border:1px solid var(--gold);color:var(--fg);border-radius:8px;padding:10px 14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.wrap{padding-block:16px 60px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.grid{max-width:1440px;margin:0 auto;display:grid;grid-template-columns:220px minmax(0,1fr) 360px;gap:20px;align-items:start}
+@media (max-width:1180px){.grid{grid-template-columns:200px minmax(0,1fr)}.readout{grid-column:1/-1}}
+@media (max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}.rail{position:static!important}}
+
+.rail{position:sticky;top:calc(env(safe-area-inset-top,0px) + 112px);display:flex;flex-direction:column;gap:4px}
+.rail a{display:flex;justify-content:space-between;gap:8px;padding:8px 10px;border-radius:6px;color:var(--fg);text-decoration:none;font-size:13px;border-left:3px solid transparent}
+.rail a:hover{background:var(--surface-2)}
+.rail a.on{border-left-color:var(--gold);background:var(--surface)}
+.rail a .n{color:var(--muted);font-variant-numeric:tabular-nums;font-size:12px}
+.rail a.skip{opacity:.45;text-decoration:line-through}
+.rail .mins{font-size:11px;color:var(--muted)}
+
+.main{display:flex;flex-direction:column;gap:22px;min-width:0}
+.sec{display:flex;flex-direction:column;gap:12px;scroll-margin-top:130px}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;border-bottom:2px solid var(--forest-2);padding-bottom:6px}
+.sec-h h2{margin:0;font-size:17px;font-weight:600;text-wrap:balance}
+.sec-h .clk{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.sec-intro{margin:0;color:var(--muted);font-size:13px;max-width:70ch}
+.hiddennote{font-size:13px;color:var(--muted);background:var(--surface-2);border-radius:8px;padding:10px 14px}
+
+.q{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.q.gate{border-color:var(--gold);box-shadow:inset 4px 0 0 var(--gold)}
+.q.done{border-color:var(--forest-2)}
+.q-top{display:flex;gap:10px;align-items:flex-start}
+.qid{font-weight:600;font-size:12px;color:var(--forest-2);min-width:30px;padding-top:2px;font-variant-numeric:tabular-nums}
+.q-text{font-size:15px;font-weight:500;margin:0;flex:1;min-width:0}
+.tags{display:flex;gap:6px;flex-wrap:wrap}
+.tag{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;padding:2px 7px;border-radius:4px;background:var(--surface-2);color:var(--muted)}
+.tag.gate{background:var(--gold-soft);color:var(--gold)}
+.tag.aloud{background:var(--good-bg);color:var(--good)}
+details.why{font-size:12.5px;color:var(--muted)}
+details.why summary{cursor:pointer;color:var(--forest-2);font-weight:500}
+details.why p{margin:6px 0 0;max-width:72ch}
+.sel{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:7px;background:var(--surface-2)}
+.multi{display:flex;flex-wrap:wrap;gap:8px}
+.multi label{display:flex;gap:6px;align-items:center;font-size:13px;padding:6px 10px;border:1px solid var(--line);border-radius:999px;cursor:pointer;background:var(--surface-2)}
+.multi input{accent-color:var(--forest-2)}
+.fu{background:var(--warn-bg);border-left:3px solid var(--warn);border-radius:6px;padding:8px 12px;font-size:13px}
+.fu b{color:var(--warn)}
+.sig{font-size:12px;color:var(--muted)}
+.note{width:100%;min-height:38px;padding:8px 10px;border:1px dashed var(--line);border-radius:7px;background:transparent;resize:vertical}
+.override{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px}
+.override select{padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--surface-2)}
+.banner{border-radius:8px;padding:10px 14px;font-size:13px}
+.banner.warn{background:var(--warn-bg);border:1px solid var(--warn)}
+.banner.bad{background:var(--bad-bg);border:1px solid var(--bad)}
+.banner.good{background:var(--good-bg);border:1px solid var(--good)}
+.banner b{display:block;margin-bottom:2px}
+
+.readout{position:sticky;top:calc(env(safe-area-inset-top,0px) + 112px);display:flex;flex-direction:column;gap:14px;max-height:calc(100vh - 130px);overflow:auto;min-width:0}
+@media (max-width:1180px){.readout{position:static;max-height:none}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.panel h3{margin:0 0 10px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.rec{background:var(--forest);color:var(--on-forest);border-color:var(--forest)}
+.rec h3{color:var(--gold)}
+.rec .plan{font-size:19px;font-weight:600;margin:0 0 4px}
+.rec .why{font-size:12.5px;opacity:.85;margin:10px 0 0}
+.rec .rk dt{color:var(--gold);opacity:.9}.rec .rk dd{color:var(--on-forest)}
+.bars{display:flex;flex-direction:column;gap:7px;margin-top:12px}
+.brow{display:grid;grid-template-columns:110px 1fr 28px;gap:8px;align-items:center;font-size:12px}
+.btrack{display:block;height:7px;border-radius:4px;background:rgba(255,255,255,.14);overflow:hidden}
+.bfill{display:block;height:100%;background:var(--gold)}
+.brow .v{text-align:right;font-variant-numeric:tabular-nums}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:13px;align-items:baseline}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0;text-align:right;font-weight:500}
+.pill{display:inline-block;font-size:11.5px;padding:2px 8px;border-radius:999px;font-weight:600}
+.pill.good{background:var(--good-bg);color:var(--good)}
+.pill.warn{background:var(--warn-bg);color:var(--warn)}
+.pill.bad{background:var(--bad-bg);color:var(--bad)}
+.pill.na{background:var(--surface-2);color:var(--muted)}
+.flags{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;list-style:none;font-size:12.5px}
+.flags li{padding:6px 10px;border-radius:6px;background:var(--surface-2)}
+.flags li.bad{background:var(--bad-bg)}
+.flags li.warn{background:var(--warn-bg)}
+.dhead{margin:4px 0 6px;font-size:12px;font-weight:600;color:var(--forest-2)}
+.drv{list-style:none;margin:0 0 8px;padding:0;display:flex;flex-direction:column;gap:6px;font-size:12.5px}
+.drv li{display:grid;grid-template-columns:62px 1fr;gap:8px;align-items:start;padding:6px 8px;border-radius:6px;background:var(--surface-2)}
+.drv .mk{font-size:11px;font-weight:600;color:var(--muted);padding-top:1px}
+.drv li.on{background:var(--warn-bg)}.drv li.on .mk{color:var(--warn)}
+.drv li.on.vq{background:var(--good-bg)}.drv li.on.vq .mk{color:var(--good)}
+.script{font-size:13px;display:flex;flex-direction:column;gap:8px}
+.script p{margin:0}
+.script .step{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);font-weight:600}
+.script .say{background:var(--surface-2);border-radius:6px;padding:8px 10px}
+.script .gap{color:var(--muted);font-style:italic}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid var(--forest-2);background:var(--surface);border-radius:7px;padding:8px 12px;cursor:pointer;font-weight:500;font-size:13px}
+.btn.primary{background:var(--forest);color:var(--on-forest);border-color:var(--forest)}
+.btn:hover{border-color:var(--gold)}
+.confirm{font-size:12.5px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.copyout{width:100%;min-height:120px;font-size:12px;border:1px solid var(--line);border-radius:6px;padding:8px;background:var(--surface-2)}
+.tabs{display:flex;gap:4px;background:rgba(255,255,255,.08);border-radius:8px;padding:3px}
+.tabs a{color:var(--on-forest);text-decoration:none;font-size:13px;padding:6px 12px;border-radius:6px;white-space:nowrap}
+.tabs a.on{background:var(--gold);color:var(--forest);font-weight:600}
+.tree{display:flex;flex-direction:column;gap:8px}
+.gate{display:grid;grid-template-columns:120px 1fr;gap:8px;align-items:start}
+.gate .gn{font-size:11.5px;font-weight:600;color:var(--muted);padding-top:4px}
+.gate.reached .gn{color:var(--fg)}
+.gopts{display:flex;flex-wrap:wrap;gap:5px}
+.gopt{font-size:11.5px;padding:3px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.gopt.pick{background:var(--forest-2);border-color:var(--forest-2);color:var(--surface);font-weight:600}
+.gnote{grid-column:2;font-size:11.5px;color:var(--muted)}
+.tresult{margin-top:4px;padding:8px 10px;border-radius:8px;background:var(--gold-soft);font-size:13px;font-weight:600}
+.aar{max-width:1180px;margin:16px auto 0;display:flex;flex-direction:column;gap:18px}
+.aar-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+@media (max-width:900px){.aar-grid{grid-template-columns:minmax(0,1fr)}}
+.field{display:flex;flex-direction:column;gap:4px;font-size:13px}
+.field label{font-weight:500}
+.field .hint{font-size:12px;color:var(--muted)}
+.field input,.field select,.field textarea{padding:8px 10px;border:1px solid var(--line);border-radius:7px;background:var(--surface-2)}
+.field textarea{min-height:60px;resize:vertical}
+.fields{display:flex;flex-direction:column;gap:12px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.stat .big{font-size:24px;font-weight:600;font-variant-numeric:tabular-nums}
+.stat .lbl{font-size:12px;color:var(--muted)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table.log{border-collapse:collapse;width:100%;min-width:880px;font-size:12.5px}
+table.log th,table.log td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+table.log th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;background:var(--surface-2)}
+table.log select{padding:4px 6px;border:1px solid var(--line);border-radius:6px;background:var(--surface-2);font-size:12px}
+.lnk{background:none;border:none;color:var(--forest-2);cursor:pointer;text-decoration:underline;padding:0;font-size:12px}
+@media (prefers-reduced-motion:no-preference){.bfill{transition:width .3s ease}}
+</style>
+</head>
+<body>
+<header class="bar">
+  <div class="bar-in">
+    <div class="brand"><span class="eyebrow">Pando Consulting Group</span><h1>Discovery Navigator</h1></div>
+    <nav class="tabs" aria-label="Views"><a href="#call" id="tabCall">Call</a><a href="#aar" id="tabAar">After Action Review</a></nav>
+    <input id="prospect" class="prospect" placeholder="Prospect / company" aria-label="Prospect or company name">
+    <div class="timer">
+      <span id="clock" class="clock" aria-live="polite">00:00</span>
+      <button id="tStart" class="tbtn" type="button">Start call</button>
+      <button id="tReset" class="tbtn" type="button">Reset clock</button>
+    </div>
+    <div class="chips">
+      <span class="chip">Initiative <b id="chipPath">Not set</b></span>
+      <span class="chip">Engagement <b id="chipPlan">Pending</b></span>
+      <span class="chip">Drivers <b id="chipClass">-</b></span>
+    </div>
+  </div>
+  <div class="cp" id="checkpoint"><strong>Next checkpoint</strong><span id="cpText">Minute 10: pathway should be clear by now.</span></div>
+</header>
+
+<div class="wrap">
+  <div class="example" id="exampleBar">
+    <span id="exText"><b>Example call loaded.</b> Hartwell Mechanical is a fictional prospect showing how answers drive the readout. Start a new call to clear it.</span>
+    <span class="confirm" id="newCallWrap"><button class="btn primary" id="newCall" type="button">Start a new call</button></span>
+  </div>
+  <div id="viewCall"><div class="grid" style="margin-top:16px">
+    <nav class="rail" id="rail" aria-label="Call parts"></nav>
+    <main class="main" id="main"></main>
+    <aside class="readout" id="readout" aria-label="Live readout"></aside>
+  </div></div>
+  <div id="viewAar" hidden></div>
+</div>
+
+<script>
+const PRICE = { VS:'[ValuIQ retainer price]', RP:'[Enterprise retainer price]' };
+
+/* fx keys: exit, grow (pathway); va, vx, fs (plan points); tac (+tactical / -strategic); aware (0 unaware,1 minimizing,2 aware);
+   dep (owner dependency points); cap ('low'|'ok'); loc ('ext'|'int'); open ('guarded'|'neutral'|'open');
+   ent (enterprise factor name); flag (code); fu (follow-up challenge) */
+const SECTIONS = [
+ { id:'p1', title:'Story and trigger', clock:'0 to 10', intro:'Let him talk about himself. Tactical or strategic shows early.', qs:[
+  { id:'Q1', text:'What prompted you to have this conversation now, rather than a year ago?', mode:'listen',
+    why:'"Rather than a year ago" separates urgency from curiosity without pressure. Something changed; find it.',
+    opts:[
+     {v:'offer', l:'An offer, an approach, or a peer\'s sale got me thinking', fx:{exit:2}},
+     {v:'life', l:'A partner, health, or family change', fx:{exit:2}, fu:'How is that changing your timeline?'},
+     {v:'stall', l:'Growth has stalled or flattened', fx:{grow:2}},
+     {v:'strain', l:'We\'re growing fast and it\'s straining everything', fx:{grow:2, fs:1}},
+     {v:'tired', l:'I\'m worn out running everything', fx:{exit:1, grow:1, cap:'low'}, fu:'If that didn\'t change in a year, what would it cost you?'},
+     {v:'told', l:'My CPA, banker, or advisor suggested it', fx:{aware:1}, fu:'What did they see that made them suggest it? Do you see it the same way?'},
+     {v:'crisis', l:'Cash pressure, a lender, or a dispute', fx:{flag:'DQCHECK'}, fu:'Check DQ1 and DQ2 before going further.'}
+    ], note:'His words: what changed' },
+  { id:'Q2', text:'Tell me about the last real problem you solved in the business. How did you spot it, and what did you do?', mode:'listen',
+    why:'A story, not a self-description. How he solved the last problem predicts how he will approach this one.',
+    opts:[
+     {v:'self', l:'I jumped in and fixed it myself, fast', fx:{tac:2, dep:1}, fu:'Has that problem come back since? (Symptom or cause?)'},
+     {v:'system', l:'I fixed it, then put a process or person in place so it doesn\'t recur', fx:{tac:-2}},
+     {v:'team', l:'My team handled it; I set the direction', fx:{tac:-2, cap:'ok'}},
+     {v:'recurring', l:'Still working on it; it keeps coming back', fx:{tac:1, aware:2, fs:1}},
+     {v:'blame', l:'Someone or something outside caused it; we dealt with it', fx:{loc:'ext', tac:1}, fu:'What part of that was within your control?'}
+    ], note:'The story in brief' }
+ ]},
+ { id:'p2', title:'The future (gateway)', clock:'continues to 10', intro:'He states what he wants. That becomes one side of the gap. Q4 and Q5 set the pathway.', qs:[
+  { id:'Q3', text:'Twelve months from now, what do you need to have in hand for this to have been worth it?', mode:'listen',
+    why:'He defines success in his own terms. It becomes the retainer\'s success definition and is played back in the close.',
+    opts:[
+     {v:'number', l:'A clear number: what it\'s worth and what moves it', fx:{vx:3}},
+     {v:'plan', l:'A plan, and someone holding me to it', fx:{vx:2}},
+     {v:'without', l:'A business that runs better without me', fx:{fs:2, grow:1}},
+     {v:'buyer', l:'Ready for a buyer: clean numbers, no surprises', fx:{fs:2, exit:1}},
+     {v:'target', l:'A specific growth result', fx:{grow:1, fs:1, vx:1}},
+     {v:'unsure', l:'Not sure; just exploring', fx:{aware:0}, fu:'If we met a year from now and you were disappointed, what would have happened?'}
+    ], note:'His exact words (played back in the close)' },
+  { id:'Q4', gate:true, text:'Where do you see yourself in relation to the business in three to five years?', mode:'listen',
+    why:'Open and hypothetical; avoids the identity threat of "are you selling?"',
+    opts:[
+     {v:'out', l:'Out of the business entirely', fx:{exit:3}},
+     {v:'back', l:'Stepped back: owner, not operator', fx:{exit:1, grow:1}},
+     {v:'bigger', l:'Still running it, and it\'s bigger', fx:{grow:3}},
+     {v:'succession', l:'Handing it to family or management', fx:{exit:2, vx:1}},
+     {v:'avoid', l:'Hasn\'t thought about it, or joked it off', fx:{}, fu:'Most owners haven\'t. What makes it hard to picture? (Note it; do not push.)'}
+    ], note:'' },
+  { id:'Q5', gate:true, text:'Suppose someone made you a fair offer tomorrow. What would go through your mind?', mode:'listen',
+    why:'v6 asked "would you take it?", which invites a reflexive no. This lets ambivalence come out.',
+    opts:[
+     {v:'relief', l:'Relief or excitement', fx:{exit:2}},
+     {v:'depends', l:'Depends on the number', fx:{exit:1, grow:1}},
+     {v:'no', l:'Not interested; I\'m building', fx:{grow:2}},
+     {v:'worry', l:'I\'d worry about my people, or what I\'d do next', fx:{exit:1}, fu:'What would need to be true for you to feel good about it?'}
+    ], note:'' }
+ ]},
+ { id:'exit', title:'Exit planning branch', clock:'10 to 15', show:()=>['Exit planning','Both'].includes(pathway()), intro:'Opens when the gateway reads Exit planning or Both.', qs:[
+  { id:'E1', gate:true, why:'The biggest single factor in the decision. Under two years there is not enough time to invest in and substantially grow the company, so ValuIQ. Two years or more gives runway for Enterprise.', text:'When you picture being out, is that starting a sale, closing one, or stepping back? Is any date fixed, and has anyone approached you?', mode:'listen',
+    opts:[
+     {v:'now_buyer', l:'Within 12 months, and someone is already interested', fx:{vx:2, exit:1, flag:'SHORT'}},
+     {v:'now', l:'Within 12 months, no buyer yet', fx:{vx:2, exit:1}},
+     {v:'1to2', l:'One to two years', fx:{vx:2}},
+     {v:'2to3', l:'Two to three years', fx:{fs:1}},
+     {v:'3to5', l:'Three to five years', fx:{fs:1, grow:1}},
+     {v:'someday', l:'No date; "someday"', fx:{vx:1}, fu:'What would make "someday" become a date?'}
+    ], note:'Timing, deadline, who has approached' },
+  { id:'E2', text:'What does the sale need to provide for you and your family? Where does that figure come from?', mode:'listen',
+    why:'Asking what the business is worth invites an ego number he will defend. Asking what he needs gets a planning number.',
+    opts:[
+     {v:'need', l:'A specific figure tied to retirement or family plans', fx:{aware:2}},
+     {v:'peer', l:'A figure from a peer\'s deal or a rule of thumb', fx:{flag:'GAP'}, fu:'If the market said 30 percent less, what would you do?'},
+     {v:'unknown', l:'Whatever it\'s worth; I haven\'t worked it out', fx:{flag:'WEALTH'}},
+     {v:'vague', l:'"Enough to never worry again"', fx:{}, fu:'Roughly what number is that?'}
+    ], note:'Figure and source' },
+  { id:'E3', probe:true, text:'Who do you picture taking it over: private equity, a competitor, family, management, or undecided?', mode:'listen',
+    opts:[
+     {v:'pe', l:'Private equity or a competitor', fx:{fs:1}},
+     {v:'family', l:'Family or management', fx:{vx:1}},
+     {v:'undecided', l:'Undecided', fx:{}}
+    ] }
+ ]},
+ { id:'grow', title:'Growth services branch', clock:'10 to 15', show:()=>['Growth services','Both'].includes(pathway()), intro:'Opens when the gateway reads Growth services or Both.', qs:[
+  { id:'G1', text:'What does growth look like for you, in revenue or profit, and by when? What would hitting it mean for you personally?', mode:'listen',
+    opts:[
+     {v:'specific', l:'A specific target and date', fx:{vx:1, fs:1}},
+     {v:'direction', l:'Directional: "double it"', fx:{fs:1}, fu:'What would hitting it change for you personally?'},
+     {v:'none', l:'No target yet', fx:{fs:1}}
+    ], note:'Target, date, personal meaning' },
+  { id:'G2', text:'If you could solve one thing that would make the biggest difference to growth, what would it be? What has kept it from being solved?', mode:'listen',
+    why:'Neutral wording exposes the barrier without inviting blame or defensiveness about past failures.',
+    opts:[
+     {v:'time', l:'I know what it is; I haven\'t had time', fx:{vx:2, cap:'low'}},
+     {v:'tried', l:'We\'ve tried; it doesn\'t stick', fx:{fs:2, aware:2}},
+     {v:'unclear', l:'Not sure what the real issue is', fx:{fs:2, aware:2}},
+     {v:'external', l:'It\'s my people, or the market', fx:{loc:'ext'}, fu:'What part of that is within your control?'}
+    ], note:'The one thing, verbatim' },
+  { id:'G3', probe:true, text:'What numbers do you look at every week, and what do they tell you?', mode:'listen',
+    opts:[
+     {v:'kpi', l:'Specific KPIs, reviewed weekly', fx:{tac:-1}},
+     {v:'pl', l:'The P&L monthly, when it arrives', fx:{}},
+     {v:'gut', l:'Bank balance and gut feel', fx:{tac:1}}
+    ] },
+  { id:'G4', probe:true, text:'How would growth be funded: cash flow, a bank line, or outside capital?', mode:'listen',
+    opts:[
+     {v:'cash', l:'Cash flow', fx:{}},
+     {v:'bank', l:'A bank line', fx:{}},
+     {v:'outside', l:'Outside capital', fx:{fs:1, ent:'Stakeholders'}}
+    ] }
+ ]},
+ { id:'p4', title:'Business snapshot', clock:'15 to 20', intro:'Three questions. Systems, CPA work, and concentration go on the post-call intake form.', qs:[
+  { id:'S1', gate:true, text:'Is this the only business we are focused on today, or are there other companies you own or have a stake in that are connected to this one, or that you would want looked at too?', mode:'listen',
+    opts:[
+     {v:'one', l:'Just this one', fx:{}},
+     {v:'related', l:'Related companies that share people, customers, or real estate', fx:{ent:'Complexity', flag:'SCOPE'}},
+     {v:'separate', l:'Separate businesses I\'d also want looked at', fx:{flag:'SCOPE', cap:'low'}},
+     {v:'holding', l:'A holding company with several operating companies', fx:{ent:'Complexity', flag:'SCOPE'}}
+    ], note:'Names of other companies' },
+  { id:'F1', text:'Over the last three years, has the business been growing, flat, or sliding, and has profit kept pace with revenue? Roughly where are revenue and profit today?', mode:'listen',
+    why:'The story of direction first; owners tell it freely. The rough size anchors fit without an audit.',
+    opts:[
+     {v:'fast_ok', l:'Growing fast; profit keeping pace', fx:{}},
+     {v:'fast_lag', l:'Growing fast; profit not keeping up', fx:{fs:2}},
+     {v:'steady', l:'Steady growth', fx:{}},
+     {v:'flat', l:'Flat for a couple of years', fx:{grow:1, flag:'PLATEAU'}},
+     {v:'slide', l:'Sliding', fx:{fs:1, flag:'SLIDE'}}
+    ], note:'Rough revenue and profit' },
+  { id:'F3', gate:true, text:'(Facilitator) Rough annual pre-tax profit, from his F1 answer. Ask only if he did not give a figure: "Roughly what does the business earn in a year?"', mode:'listen',
+    why:'The size of the profit is the best quick read on whether the value is there to support an Enterprise engagement. Bands are adjustable.',
+    opts:[
+     {v:'lt250', l:'Under $250K', fx:{}},
+     {v:'250to500', l:'$250K to $500K', fx:{}},
+     {v:'500to1m', l:'$500K to $1M', fx:{}},
+     {v:'1to3m', l:'$1M to $3M', fx:{}},
+     {v:'gt3m', l:'Over $3M', fx:{}},
+     {v:'unknown', l:'Would not say, or does not know', fx:{}, fu:'Not knowing is itself a finding. Put it on the intake form.'}
+    ] },
+  { id:'F2', text:'How does cash feel month to month? Is there comfortably enough, or do you find yourself watching payroll timing, leaning on the credit line, or chasing customer payments?', mode:'aloud',
+    why:'Lived experience, with examples that make admitting strain normal. "Do you have cash flow problems?" gets "no."',
+    opts:[
+     {v:'comfort', l:'Comfortable; I don\'t really think about it', fx:{}},
+     {v:'tight', l:'Tight at times, but managed', fx:{}},
+     {v:'watch', l:'Watching payroll timing or leaning on the line', fx:{fs:1}},
+     {v:'stress', l:'Putting in my own money, or the lender is asking questions', fx:{flag:'CASH'}}
+    ], note:'' }
+ ]},
+ { id:'p5', title:'Reality check', clock:'20 to 30', intro:'The gap appears here. Slow down, use silence, write his words verbatim.', qs:[
+  { id:'R2', text:'I\'ll describe a few ways businesses run when the owner steps away. Which is closest to yours today?', mode:'aloud',
+    why:'Concrete descriptions instead of a 1 to 10 number. Owners who would say "8" tend to recognize themselves honestly in "big decisions and key customers wait for me." Then ask what would move it one step.',
+    opts:[
+     {v:'a', l:'I could disappear for a month and nobody would need to call', fx:{dep:0}},
+     {v:'b', l:'It runs day to day, but big decisions and key customers wait for me', fx:{dep:1}},
+     {v:'c', l:'The team handles routine work; I\'m in most important conversations', fx:{dep:2}},
+     {v:'d', l:'Most things route through me', fx:{dep:3, fs:1}},
+     {v:'e', l:'If I\'m out, it mostly stops', fx:{dep:4, fs:1}}
+    ], note:'"What would move it one step?" (his words)' },
+  { id:'R3', text:'When did you last take a full week off without checking in? What happened?', mode:'listen',
+    why:'Behavior, not opinion. Compared with R2, it produces the planned observation.',
+    opts:[
+     {v:'recent', l:'In the last six months, and I didn\'t check in', fx:{dep:0}},
+     {v:'checked', l:'I took time off but checked in every day', fx:{dep:2}},
+     {v:'year', l:'Over a year ago', fx:{dep:2}},
+     {v:'never', l:'Can\'t remember', fx:{dep:3}}
+    ], note:'What happened' },
+  { id:'R4', text:'You probably already have a sense of what needs to change. What has stopped it from getting done?', mode:'listen',
+    why:'Accepts his competence, then asks about the barrier. "Do you know what needs to change?" gets yes from nearly everyone.',
+    opts:[
+     {v:'time', l:'Time; I\'m in the weeds', fx:{vx:1, fs:1, cap:'low', aware:2}},
+     {v:'start', l:'Not sure where to start', fx:{fs:2, aware:2}},
+     {v:'stick', l:'We tried; it didn\'t stick', fx:{fs:2, aware:2}},
+     {v:'owner', l:'Nobody to own it', fx:{fs:1, cap:'low', aware:2}},
+     {v:'fine', l:'Nothing; things are fine', fx:{aware:0}, fu:'If things are fine, what made you take this call? (Use his Q1 answer.)'}
+    ], note:'The barrier, verbatim' },
+  { id:'R1', probe:true, text:'If a buyer, or an experienced operator, spent a week inside your business, what would they find that you would want to fix first?', mode:'listen',
+    why:'Use when R2 to R4 come back thin. Outside eyes make it easier to admit.',
+    opts:[
+     {v:'candid', l:'A specific, candid list', fx:{aware:2}},
+     {v:'minor', l:'A couple of minor things', fx:{aware:1}, fu:'What would your best manager say?'},
+     {v:'nothing', l:'Nothing really', fx:{aware:0}, fu:'What would your best manager say?'}
+    ], note:'' }
+ ]},
+ { id:'p6', title:'People and load', clock:'30 to 40', intro:'Partners, decision makers, capacity, and how he has used help before.', qs:[
+  { id:'PX', gate:true, text:'(Facilitator) Is there more than one owner?', mode:'listen',
+    opts:[ {v:'no', l:'No, sole owner', fx:{}}, {v:'yes', l:'Yes, there are partners', fx:{}} ] },
+  { id:'P2', show:()=>A('PX')==='yes', text:'Every partnership sees some things differently. Where do the two of you see things differently, on growth, on an exit, or on how the business is run?', mode:'listen',
+    why:'Presupposes difference, so admitting it costs nothing. "Do you agree on everything?" gets "yes."',
+    opts:[
+     {v:'talk', l:'A few things, and we talk them through', fx:{partner:'Aligned'}},
+     {v:'exit', l:'We differ on timing of an exit', fx:{partner:'Divergent', ent:'Stakeholders'}, fu:'Book a joint conversation before any proposal.'},
+     {v:'risk', l:'We differ on growth, risk, or investment', fx:{partner:'Divergent', ent:'Stakeholders'}},
+     {v:'all', l:'"We agree on everything"', fx:{partner:'Unverified'}, fu:'If your partner were here, how would they answer the three-to-five-year question?'},
+     {v:'tension', l:'It\'s a real source of tension', fx:{partner:'Conflict', flag:'DQ2', ent:'Stakeholders'}}
+    ], note:'Where they differ' },
+  { id:'P3', probe:true, show:()=>A('PX')==='yes', text:'If your partner were here, how would they answer the three-to-five-year question?', mode:'listen',
+    opts:[ {v:'same', l:'Same as mine', fx:{}}, {v:'diff', l:'Differently', fx:{partner:'Divergent'}}, {v:'dunno', l:'I don\'t know; we haven\'t discussed it', fx:{partner:'Divergent'}} ] },
+  { id:'D1', type:'multi', text:'Besides you, whose view matters on a decision like this?', mode:'listen',
+    why:'"Whose view matters" rather than "who approves." Owners rarely admit a spouse holds a veto but will say the view matters.',
+    opts:[ {v:'me', l:'Just me', fx:{}}, {v:'spouse', l:'Spouse', fx:{}}, {v:'board', l:'Board or investors', fx:{ent:'Stakeholders'}}, {v:'lender', l:'Lender', fx:{ent:'Stakeholders'}}, {v:'advisor', l:'A key advisor', fx:{}} ],
+    note:'Names; should they join the next call?' },
+  { id:'L1', text:'Walk me through a typical week. What are you doing that only you can do, and what would you happily hand to someone else tomorrow?', mode:'listen',
+    why:'Surfaces load first, so the engagement can be framed as taking things off his plate. "How much time can you commit?" triggers the overstretch objection.',
+    opts:[
+     {v:'strategic', l:'Mostly strategy, sales, and key relationships', fx:{cap:'ok', tac:-1}},
+     {v:'mix', l:'A mix of strategy and firefighting', fx:{}},
+     {v:'fire', l:'Mostly firefighting; 55+ hours', fx:{cap:'low', tac:1}},
+     {v:'bottleneck', l:'I\'m the bottleneck on approvals, quotes, and problems', fx:{cap:'low', dep:1}}
+    ], note:'His hand-off list, verbatim (used in the close)' },
+  { id:'L2', probe:true, text:'Who on your team would you trust to own a project like this with us, day to day?', mode:'listen',
+    opts:[ {v:'named', l:'A named person', fx:{delegate:true}}, {v:'maybe', l:'Maybe someone', fx:{}}, {v:'none', l:'No one', fx:{delegate:false, dep:1}} ], note:'Name' },
+  { id:'L3', gate:true, text:'Are there roles you have been covering yourself, or have thought about filling, like a CFO or controller, an operations lead, or someone to put a management system such as EOS in place?', mode:'listen',
+    why:'Internal labor needs are an Enterprise driver. Asking about roles he covers keeps it about the business, not his limits.',
+    opts:[
+     {v:'none', l:'No; the team is covered', fx:{}},
+     {v:'finance', l:'Financial leadership: CFO or controller', fx:{fs:1}},
+     {v:'ops', l:'Operations leadership', fx:{fs:1}},
+     {v:'system', l:'A management system or operating rhythm (EOS or similar)', fx:{fs:1}},
+     {v:'several', l:'Several of these', fx:{fs:2, cap:'low'}}
+    ], note:'Which roles, and is anyone fractional today?' },
+  { id:'H1', text:'Think about outside help you have brought in before: consultants, coaches, a fractional CFO. What worked well about the best of them?', mode:'listen',
+    why:'Starts with what worked, which is easy to talk about and reveals the style he responds to. Past behavior predicts better than stated preference.',
+    opts:[
+     {v:'plan', l:'They gave us a clear plan and held us to it; we did the work', fx:{vx:2}},
+     {v:'in', l:'They were in it with us, hands-on', fx:{fs:2}},
+     {v:'renewed', l:'A long-term arrangement we completed and renewed', fx:{fs:1, commit:true}},
+     {v:'expert', l:'They brought expertise we didn\'t have in-house', fx:{fs:1}},
+     {v:'never', l:'Haven\'t really used outside help', fx:{vx:1}, fu:'What has kept you from bringing someone in before now?'}
+    ], note:'What worked, in his words' },
+  { id:'H2', text:'And the ones that didn\'t work out, what was missing?', mode:'listen',
+    why:'"What was missing" lets him put the fault on the advisor, so he answers freely. The answer still shows what he needs this time.',
+    opts:[
+     {v:'execution', l:'A good plan, but nobody to help carry it out', fx:{fs:2}},
+     {v:'generic', l:'Too generic; they didn\'t understand our business', fx:{fs:1}, fu:'What would someone need to understand about your business to be useful?'},
+     {v:'faded', l:'We got busy and it faded', fx:{commitRisk:true, cap:'low'}, fu:'What would need to be different this time so it doesn\'t fade?'},
+     {v:'value', l:'Cost more than what we got out of it', fx:{vx:1}},
+     {v:'none', l:'Nothing comes to mind', fx:{}}
+    ], note:'What was missing, in his words' },
+  { id:'H3', probe:true, text:'When you\'re weighing an outside perspective that\'s different from your own, what helps you decide whether to act on it?', mode:'listen',
+    why:'Asks how he decides, not whether he has been wrong. No confession needed, and the answer tells us how to present findings.',
+    opts:[
+     {v:'data', l:'Seeing the numbers or evidence behind it', fx:{open:'open', tac:-1}},
+     {v:'talk', l:'Talking it through with someone I trust', fx:{open:'open'}},
+     {v:'gut', l:'Whether it feels right; I go with my gut', fx:{open:'neutral', tac:1}},
+     {v:'who', l:'Depends who it\'s from and whether they know my business', fx:{open:'neutral'}}
+    ], note:'' }
+ ]},
+ { id:'p7', title:'Cost of standing still', clock:'40 to 45', intro:'He names the cost, then how much it matters. Never skip.', qs:[
+  { id:'C1', text:'If nothing changes over the next three years, what happens to the business, and to you?', mode:'listen',
+    why:'A cost he names himself is one he believes. Loss weighs more than gain.',
+    opts:[
+     {v:'concrete', l:'A concrete loss: value, a key customer, health, family time, a partner rift', fx:{aware:2}},
+     {v:'slow', l:'We\'d slowly fall behind', fx:{aware:1}},
+     {v:'fine', l:'We\'d be fine', fx:{aware:0}}
+    ], note:'His exact words (played back in the close)' },
+  { id:'C2', text:'On a scale of 1 to 10, how important is it to change that in the next twelve months? Why not lower?', mode:'aloud',
+    why:'"Why not lower" makes him argue for change instead of us.',
+    opts:[ {v:'2',l:'1 to 2'},{v:'4',l:'3 to 4'},{v:'5',l:'5'},{v:'6',l:'6'},{v:'7',l:'7'},{v:'8',l:'8'},{v:'10',l:'9 to 10'} ],
+    note:'"Why not lower?" in his words' }
+ ]}
+];
+
+const QBY = {}; SECTIONS.forEach(s=>s.qs.forEach(q=>QBY[q.id]=q));
+const BLANK = ()=>({ prospect:'', a:{}, n:{}, override:'', obs:'', timer:{acc:0, startedAt:null}, example:false });
+let S = BLANK();
+
+const EXAMPLE = { id:'exHartwell', aar:{decision:'Enterprise', decidedBy:'Bennett, Eric', reason:'', expected:'Proposal accepted after a joint call with both partners', outcome:'Open'}, prospect:'Hartwell Mechanical (example)', example:true, override:'', obs:'paused', timer:{acc:0,startedAt:null},
+  a:{Q1:'tired',Q2:'self',Q3:'without',Q4:'back',Q5:'depends',E1:'2to3',E2:'peer',G1:'direction',G2:'stick',S1:'related',F1:'fast_lag',F3:'500to1m',F2:'watch',R2:'b',R3:'checked',R4:'stick',PX:'yes',P2:'exit',D1:['spouse'],L1:'bottleneck',L2:'named',L3:'ops',H1:'in',H2:'execution',C1:'concrete',C2:'8'},
+  n:{Q1:'I\'m 61 and I\'m the guy who answers every call at 9pm.',Q3:'I want to take a month off and not have the phones blow up.',R2:'If Dana could price the big jobs without me.',R3:'Two days in Florida, on the phone every morning.',R4:'We hired an ops manager twice. Both times it fell back on me.',L1:'Quoting, scheduling the crews, chasing receivables.',L2:'Dana, our service manager',C1:'I\'ll be 64, still doing quotes, and the business is worth what it\'s worth today.',C2:'Because my wife is done with me working Saturdays.',S1:'Hartwell Properties LLC owns the building.',F1:'About $7M revenue, maybe $600K profit.',P2:'Mike wants to sell in two years; I want to grow it first.'} };
+
+function load(){ try{ const r = localStorage.getItem('pando-nav-v5'); if(r){ S = Object.assign(BLANK(), JSON.parse(r)); return; } }catch(e){} S = JSON.parse(JSON.stringify(EXAMPLE)); }
+function save(){ try{ localStorage.setItem('pando-nav-v5', JSON.stringify(S)); }catch(e){} }
+const A = id => S.a[id];
+const esc = s => String(s??'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function optOf(id){ const q=QBY[id]; const v=A(id); if(!q||v==null) return null; return q.opts.find(o=>o.v===v)||null; }
+function isVisible(q, sec){ if(sec.show && !sec.show()) return false; if(q.show && !q.show()) return false; return true; }
+
+/* ---------- derived model ---------- */
+function rawPath(){ let ex=0, gr=0; ['Q1','Q3','Q4','Q5'].forEach(id=>{ const o=optOf(id); if(o&&o.fx){ ex+=o.fx.exit||0; gr+=o.fx.grow||0; }});
+  if(A('Q1')==='crisis') return {p:'Neither', ex, gr};
+  if(!A('Q4') && !A('Q5')) return {p:'Open', ex, gr};
+  let p; if(ex>=3 && gr>=3 && Math.abs(ex-gr)<=2) p='Both'; else if(ex>gr) p='Exit planning'; else if(gr>ex) p='Growth services'; else p='Both';
+  return {p, ex, gr}; }
+function pathway(){ return S.override || rawPath().p; }
+function initiative(){ const p=pathway(); return p==='Exit planning'?'Exit initiative': p==='Growth services'?'Growth initiative': p==='Both'?'Exit and growth initiative': p==='Neither'?'No initiative yet':'Not set'; }
+function engagementName(plan){ return plan==='Judgment call'?`Judgment call (leans ${model._lean||'either'})`: plan==='Enterprise'?'Enterprise engagement (Full Scope)': plan==='ValuIQ'?'ValuIQ engagement': plan==='Hold'?'Hold: check disqualifiers': plan==='Not ready'?'Not ready to propose':'Pending'; }
+function sequence(plan){ const p=pathway(); if(plan==='Judgment call') return 'Decide after a team review'; if(plan==='Enterprise') return p==='Exit planning'?'Diagnose, then Prepare': p==='Both'?'Diagnose, Design, Execute; Prepare in later months':'Diagnose, Design, Execute'; if(plan==='ValuIQ') return p==='Exit planning'||(p==='Both'&&['now_buyer','now','1to2'].includes(A('E1')))?'Value range and scorecard, then readiness work before the sale':'Value range and scorecard, then monthly execution and accountability'; return '-'; }
+
+function model(){
+  const m = { va:0, vx:0, fs:0, tac:0, dep:0, awareVals:[], cap:null, capLow:0, loc:null, open:null, partner:null, ent:new Set(), flags:new Set(), delegate:null, commit:false, commitRisk:false };
+  SECTIONS.forEach(sec=>sec.qs.forEach(q=>{ if(!isVisible(q,sec)) return; const v=A(q.id); if(v==null) return;
+    const vals = Array.isArray(v)? v : [v];
+    vals.forEach(val=>{ const o=q.opts.find(x=>x.v===val); if(!o||!o.fx) return; const f=o.fx;
+      m.va+=f.va||0; m.vx+=f.vx||0; m.fs+=f.fs||0; m.tac+=f.tac||0; m.dep+=f.dep||0;
+      if('aware' in f) m.awareVals.push(f.aware);
+      if(f.cap==='low') m.capLow++; if(f.cap==='ok' && m.cap!=='low') m.cap='ok';
+      if(f.loc) m.loc=f.loc; if(f.open) m.open=f.open; if(f.partner) m.partner = worsePartner(m.partner, f.partner);
+      if(f.ent) m.ent.add(f.ent); if(f.flag) m.flags.add(f.flag);
+      if('delegate' in f) m.delegate=f.delegate; if(f.commit) m.commit=true; if(f.commitRisk) m.commitRisk=true; });
+  }));
+  if(S.obs==='defended') m.open='guarded'; else if(S.obs==='curious') m.open = m.open==='guarded'?'neutral':'open'; else if(S.obs==='paused' && !m.open) m.open='neutral';
+  const D1 = A('D1')||[]; if(D1.length>=2) m.ent.add('Stakeholders');
+  // derived ratings
+  m.awareness = m.awareVals.length ? (m.awareVals.includes(0) ? (m.awareVals.filter(x=>x===2).length>=2 ? 'Minimizing':'Unaware') : (m.awareVals.every(x=>x===2)?'Aware and motivated':'Minimizing')) : null;
+  m.style = (A('Q2')||A('L1')||A('G3')) ? (m.tac>=2?'Tactical': m.tac<=-2?'Strategic':'Mixed') : null;
+  m.capacity = (A('L1')||A('L2')||A('R4')) ? (m.capLow>=1 ? (m.delegate===true?'Overstretched, has delegate':'Overstretched, no delegate') : 'Has capacity') : null;
+  m.depLevel = (A('R2')||A('R3')) ? (m.dep>=5?'High': m.dep>=3?'Moderate':'Low') : null;
+  m.readiness = A('C2') ? Number(A('C2')) : null;
+  m.contradiction = ['a','b'].includes(A('R2')) && ['checked','year','never'].includes(A('R3'));
+  // decision drivers
+  const pth = pathway();
+  const ENT = [
+    { k:'Growth', on: ['Growth services','Both'].includes(pth) && (['specific','direction'].includes(A('G1')) || ['fast_ok','fast_lag'].includes(A('F1')) || A('Q1')==='strain' || A('G4')==='outside'), ev:'Growth initiative with a target, fast growth, or outside capital' },
+    { k:'Complexity', on: m.ent.has('Complexity') || m.ent.has('Stakeholders') || ['Divergent','Conflict'].includes(m.partner), ev:'Several companies or entities, partners who differ, or board, lender, or investors involved' },
+    { k:'Runway to grow', on: ['2to3','3to5'].includes(A('E1')), ev:'Exit two to five years out: enough time to invest in and grow value' },
+    { k:'Internal labor', on: ['finance','ops','system','several'].includes(A('L3')) || A('R4')==='owner' || A('L2')==='none' || A('H2')==='execution', ev:'Roles to cover (fractional CFO or ops, EOS), or no one to carry the work' }
+  ];
+  const VQ = [
+    { k:'Exit inside two years', on: ['now_buyer','now','1to2'].includes(A('E1')), strong:true, ev:'Not enough time to invest in and substantially grow the company' },
+    { k:'Value not there yet', on: A('F3')==='lt250' || A('F3')==='250to500', strong: A('F3')==='lt250', ev:'Profit under $500K; value may not support Enterprise yet' },
+    { k:'No timeline', on: A('E1')==='someday' || A('Q4')==='avoid' || (pth==='Growth services' && A('G1')==='none'), ev:'No exit date, or no growth target' },
+    { k:'Self-directed', on: A('H1')==='plan' || A('H2')==='value' || A('G2')==='time', ev:'Works best with a plan and accountability, or cost-sensitive with outside help' }
+  ];
+  m.entD = ENT; m.vqD = VQ;
+  const entN = ENT.filter(d=>d.on).length, vqN = VQ.filter(d=>d.on).length;
+  const answered = Object.keys(S.a).length;
+  const scores = { 'ValuIQ': m.va + m.vx + vqN*3, 'Enterprise': m.fs + entN*3 + (m.depLevel==='High'?1:0) };
+  const exitPath = ['Exit planning','Both'].includes(pth);
+  const short=['now_buyer','now','1to2'].includes(A('E1')), runway=['2to3','3to5'].includes(A('E1'));
+  const noDate = A('E1')==='someday' || (exitPath && !A('E1') && A('Q4')==='avoid');
+  const valueLow = A('F3')==='lt250', valueDeep=['500to1m','1to3m','gt3m'].includes(A('F3'));
+  const entList = ENT.filter(d=>d.on).map(d=>d.k.toLowerCase()).join(', ');
+  const T = []; let plan='Pending', why='', lean=null, branch=null;
+  let g0='Proceed';
+  if(pth==='Neither' || m.flags.has('DQ2') || (m.flags.has('CASH')&&A('F1')==='slide')) g0='Hold';
+  else if(m.awareness==='Unaware' || (m.readiness!=null && m.readiness<=5)) g0='Not ready';
+  T.push({gate:'Fit check', opts:['Proceed','Hold','Not ready'], pick: answered>=4 ? g0 : null});
+  if(g0==='Hold'){ plan='Hold'; why='Crisis, partner conflict, or possible distress. Check disqualifiers; do not price.'; }
+  else if(g0==='Not ready'){ plan='Not ready'; why = m.awareness==='Unaware' ? 'He does not see a problem yet. Do not propose a retainer; follow up with the Value Snapshot as a mirror.' : 'Readiness is 5 or below. Do not price a retainer; set a follow-up.'; }
+  else {
+    branch = pth==='Growth services' ? 'Not selling' : !exitPath ? null : short ? 'Exit under 2 years' : runway ? 'Exit 2 to 5 years' : noDate ? 'No defined timeline' : null;
+    T.push({gate:'Objective and timeline', opts:['Exit under 2 years','Exit 2 to 5 years','No defined timeline','Not selling'], pick:branch});
+    if(answered>=6 && branch){
+      if(branch==='Exit under 2 years'){
+        const buyer=A('E1')==='now_buyer', deep = ENT[1].on || valueDeep;
+        const o=['Buyer lined up, deeper analysis needed','Buyer lined up, straightforward','No buyer yet'];
+        const pick = buyer ? (deep? o[0] : o[1]) : o[2];
+        T.push({gate:'Buyer and depth', opts:o, pick, note: buyer ? (deep?'Complexity or meaningful profit: a buyer will dig deeper than ValuIQ goes.':'Simple business; ValuIQ readiness may be enough.') : ''});
+        if(pick===o[0]){ plan='Judgment call'; lean='Enterprise'; why='Sale inside two years with a buyer lined up and a business that needs deeper analysis than ValuIQ provides. Leans Enterprise (QoE/QoO, then Prepare). Decide as a team.'; }
+        else { plan='ValuIQ'; why='Exit inside two years: not enough time to invest in and substantially grow the company. ValuIQ focuses the year on value and readiness.'; }
+      } else {
+        const o=['2 or more drivers','1 driver','None'];
+        const pick = entN>=2? o[0] : entN===1? o[1] : o[2];
+        T.push({gate:'Enterprise drivers', opts:o, pick, note: entList ? 'Met: '+entList : 'None met'});
+        if(branch==='No defined timeline'){
+          if(entN>=3){ plan='Judgment call'; lean='ValuIQ'; why='No defined timeline points to ValuIQ, but three or more Enterprise drivers are met. Decide as a team.'; }
+          else { plan='ValuIQ'; why='No defined timeline: ValuIQ gives structure without committing to an exit or growth plan yet.'; }
+        } else {
+          const lead = branch==='Not selling' ? 'Not selling' : 'Exit two to five years out';
+          if(entN>=2){ plan='Enterprise'; why=`${lead}, with ${entN} Enterprise drivers: ${entList}.`; }
+          else if(entN===1){ plan='Judgment call'; lean = scores['Enterprise']>scores['ValuIQ']?'Enterprise':'ValuIQ'; why=`${lead}, with one Enterprise driver (${entList}). Answers lean ${lean}. Decide as a team.`; }
+          else { plan='ValuIQ'; why=`${lead}, with no Enterprise drivers met.`; }
+        }
+      }
+      const vpick = valueLow?'Profit under $250K': A('F3') && A('F3')!=='unknown' ? 'Value supports either' : 'Not captured';
+      T.push({gate:'Value check', opts:['Profit under $250K','Value supports either','Not captured'], pick:vpick});
+      if(valueLow && plan==='Enterprise'){ plan='Judgment call'; lean='ValuIQ'; why += ' Profit is under $250K, so the value may not support Enterprise yet.'; }
+      if(plan!=='ValuIQ' && m.capacity==='Overstretched, no delegate') why += ' Watch: no internal owner named yet.';
+      if(m.commitRisk) why += ' Past help faded: test commitment.';
+    }
+  }
+  m.trace=T; m.lean=lean; m.branch=branch;
+  m.scores=scores; m.plan=plan; m.why=why; model._lean=lean;
+  return m;
+}
+function worsePartner(a,b){ const rank={Aligned:0,Unverified:1,Divergent:2,Conflict:3}; if(!a) return b; return rank[b]>rank[a]?b:a; }
+
+/* ---------- render questions ---------- */
+function renderMain(){
+  const main = document.getElementById('main'); const rail = document.getElementById('rail');
+  let h='', r='';
+  SECTIONS.forEach(sec=>{
+    const secVis = !sec.show || sec.show();
+    const qs = sec.qs.filter(q=>!q.show || q.show());
+    const done = qs.filter(q=>A(q.id)!=null && !(Array.isArray(A(q.id))&&!A(q.id).length)).length;
+    r += `<a href="#${sec.id}" data-sec="${sec.id}" class="${secVis?'':'skip'}"><span>${esc(sec.title)}<br><span class="mins">${esc(sec.clock)}</span></span><span class="n">${secVis? done+'/'+qs.length : 'skipped'}</span></a>`;
+    h += `<section class="sec" id="${sec.id}"><div class="sec-h"><h2>${esc(sec.title)}</h2><span class="clk">min ${esc(sec.clock)}</span></div>`;
+    if(!secVis){ h += `<div class="hiddennote">Not on this call's pathway (${esc(pathway())}). It opens automatically if the gateway answers change.</div></section>`; return; }
+    if(sec.intro) h += `<p class="sec-intro">${esc(sec.intro)}</p>`;
+    if(sec.id==='p2') h += pathwayCard();
+    qs.forEach(q=>{ h += qCard(q); if(q.id==='R3') h += obsCard(); if(q.id==='F2') h += distressCard(); });
+    h += `</section>`;
+  });
+  h += closeSection();
+  main.innerHTML = h; rail.innerHTML = r;
+}
+function qCard(q){
+  const v=A(q.id); const answered = v!=null && !(Array.isArray(v)&&!v.length);
+  let tags = `${q.gate?'<span class="tag gate">Gateway</span>':''}${q.mode==='aloud'?'<span class="tag aloud">Read options aloud</span>':''}${q.probe?'<span class="tag">Probe</span>':'<span class="tag">Core</span>'}`;
+  let ctrl='';
+  if(q.type==='multi'){ const cur=v||[]; ctrl = `<div class="multi" role="group" aria-label="${esc(q.id)} answers">` + q.opts.map(o=>`<label><input type="checkbox" id="${q.id}-${o.v}" data-q="${q.id}" data-v="${o.v}" ${cur.includes(o.v)?'checked':''}> ${esc(o.l)}</label>`).join('') + `</div>`; }
+  else { ctrl = `<select class="sel" id="sel-${q.id}" data-q="${q.id}" aria-label="${esc(q.id)} answer"><option value="">${q.mode==='aloud'?'Read the options, then pick the closest':'Listen, then pick the closest'}</option>` + q.opts.map(o=>`<option value="${o.v}" ${v===o.v?'selected':''}>${esc(o.l)}</option>`).join('') + `</select>`; }
+  const o = !Array.isArray(v) ? optOf(q.id) : null;
+  const fu = o && o.fu ? `<div class="fu"><b>Challenge:</b> ${esc(o.fu)}</div>` : '';
+  const why = q.why ? `<details class="why"><summary>Why this wording</summary><p>${esc(q.why)}</p></details>` : '';
+  const note = q.note!==undefined && q.note!=='' ? `<textarea class="note" id="note-${q.id}" data-note="${q.id}" placeholder="${esc(q.note)}">${esc(S.n[q.id]||'')}</textarea>` : '';
+  return `<div class="q ${q.gate?'gate':''} ${answered?'done':''}"><div class="q-top"><span class="qid">${q.id==='PX'?'Gate':q.id}</span><p class="q-text">${esc(q.text)}</p></div><div class="tags">${tags}</div>${why}${ctrl}${fu}${note}</div>`;
+}
+function pathwayCard(){
+  const rp = rawPath(); const cur = pathway();
+  const cls = cur==='Neither'?'bad': cur==='Open'?'warn':'good';
+  return `<div class="banner ${cls}"><b>Gateway result: ${esc(cur)}</b>Exit signals ${rp.ex}, growth signals ${rp.gr}. ${cur==='Both'?'Ask E1, E2, G1, G2.':cur==='Exit planning'?'Exit branch opens below.':cur==='Growth services'?'Growth branch opens below.':cur==='Neither'?'Shorten the call; check disqualifiers.':'Answer Q4 and Q5 to set the path.'}
+   <div class="override" style="margin-top:8px"><label for="override">Override</label><select id="override"><option value="">Use gateway</option>${['Exit planning','Growth services','Both','Neither'].map(p=>`<option ${S.override===p?'selected':''}>${p}</option>`).join('')}</select></div></div>`;
+}
+function obsCard(){
+  const m=model(); if(!m.contradiction) return '';
+  const r2 = optOf('R2'), r3 = optOf('R3');
+  return `<div class="q gate"><div class="q-top"><span class="qid">Obs</span><p class="q-text">Planned observation</p></div>
+   <div class="fu"><b>Say:</b> "Can I share something I'm noticing? You described the business as '${esc(r2.l.toLowerCase())}', and you also said '${esc((S.n.R3||r3.l).toLowerCase())}'. How do those fit together?" Then stop talking.</div>
+   <select class="sel" id="obs" aria-label="Reaction to observation"><option value="">His reaction</option>
+   ${[['curious','Curious; self-corrected'],['paused','Paused; partly agreed'],['defended','Defended or changed the subject'],['skipped','Skipped (rapport thin)']].map(([v,l])=>`<option value="${v}" ${S.obs===v?'selected':''}>${l}</option>`).join('')}</select></div>`;
+}
+function distressCard(){
+  if(!(A('F1')==='slide' && A('F2')==='stress') && !(A('F2')==='stress')) return '';
+  const hard = A('F1')==='slide' && A('F2')==='stress';
+  return `<div class="banner ${hard?'bad':'warn'}"><b>${hard?'Gateway: possible distress':'Cash stress'}</b>${hard?'Revenue sliding with cash stressed. Check DQ1 now. If distressed, pivot to a turnaround referral. If not, urgency is very high.':'Owner funding the business or lender pressure. Probe gently: "How long can that continue?"'}</div>`;
+}
+
+/* ---------- close builder and readout ---------- */
+const trimQ = t => t.trim().replace(/[.!?]+$/,'');
+const lc1 = t => t ? t[0].toLowerCase()+t.slice(1) : t;
+function said(id, fallback){ const n=trimQ(S.n[id]||''); if(n) return `"${esc(n)}"`; const o=optOf(id); return o? o.l.toLowerCase() : `<span class="gap">[${fallback}]</span>`; }
+function closeSection(){
+  const m=model(); const p=pathway(); const plan=m.plan;
+  const gapSide = A('R2')||A('R4') ? (S.n.R2?said('R2','R2'): S.n.R4?said('R4','R4'): said('R4','R4 barrier')) : '<span class="gap">[R2 or R4, verbatim]</span>';
+  let price='';
+  const fsExit = `"Given what you've described, this is an exit initiative, and the right fit is our Enterprise engagement: a 12-month retainer that starts by showing you what a buyer will see, then builds and prepares against it, with us in it alongside ${S.n.L2?esc(S.n.L2):'your team'}. It runs ${PRICE.RP}. A lighter option is ValuIQ, also 12 months, at ${PRICE.VS}, where your team does the work with our structure. How do those sit with you?"`;
+  const fsGrow = `"Given what you've described, this is a growth initiative, and the right fit is our Enterprise engagement: a 12-month retainer that starts by finding what is really keeping this unsolved, then designing and executing the fix with you, so it stops depending on you. It runs ${PRICE.RP}. A lighter option is ValuIQ, also 12 months, at ${PRICE.VS}. How do those sit with you?"`;
+  const vqExit = `"With a sale inside two years, the best use of the time is making the value you have defensible and visible. ValuIQ fits: a 12-month retainer that starts with a value range and readiness scorecard, then works through what a buyer will look at, at ${PRICE.VS}. How does that sit with you?"`;
+  const vq = `"Given what you've described, ValuIQ fits: a 12-month retainer that starts with a value range and readiness scorecard, then gives your team the structure and accountability to move the number, at ${PRICE.VS}. If the work turns out to need us more hands-on, you can step up to our Enterprise engagement during the year. How does that sit with you?"`;
+  const vqPick = ['now_buyer','now','1to2'].includes(A('E1')) ? vqExit : vq, fsPick = p==='Exit planning'? fsExit : fsGrow;
+  if(plan==='Judgment call') price = `Decide as a team before pricing if you can. If you must present on the call, lead with ${m.lean}:<br><br>${m.lean==='Enterprise'?fsPick:vqPick}`;
+  else if(plan==='Enterprise') price = fsPick;
+  else if(plan==='ValuIQ') price = vqPick;
+  else if(plan==='Not ready') price = `No retainer price. "A good next step is our Value Snapshot. It gives you a first read on where the business stands, and we'll walk through it together on [date]."`;
+  else if(plan==='Hold') price = 'No price. Check disqualifiers and route to a referral if one applies.';
+  else price = '<span class="gap">Price test appears once enough answers are in.</span>';
+  const effort = m.capacity && m.capacity.startsWith('Overstretched') ? `"You also told us ${S.n.L1?`you're carrying ${esc(lc1(trimQ(S.n.L1)))}`:'you are stretched thin'}. The way we work is built to take those off your plate${S.n.L2?`, with ${esc(S.n.L2)} owning it day to day`:''}. Your time goes to decisions, not legwork."` : `"The time this takes from you is mostly decisions; ${S.n.L2?esc(S.n.L2):'someone on your team'} carries the day-to-day."`;
+  const effortNote = S.n.L2 ? '' : ' <span class="gap">(Both levels need an internal owner. Ask who before pricing.)</span>';
+  return `<section class="sec" id="close"><div class="sec-h"><h2>Close builder</h2><span class="clk">min 45 to 55</span></div>
+  <p class="sec-intro">Assembled from his answers. Verbatim notes beat option text; fill the notes and this updates.</p>
+  <div class="q"><div class="script">
+   <p class="step">1. He summarizes</p><p class="say">"Of everything we've talked about, what stands out most to you?" Then stop.</p>
+   <p class="step">2. Play back the gap</p><p class="say">"You said in twelve months you need ${said('Q3','Q3 outcome')}. You also said ${gapSide}. Is that the gap?"</p>
+   <p class="step">3. Recall the cost</p><p class="say">"And you said if nothing changes, ${said('C1','C1 cost')}."</p>
+   <p class="step">4. Reframe the effort</p><p class="say">${effort}${effortNote}</p>
+   <p class="step">5. Recommend and price test</p><p class="say">${price}</p>
+   <p class="step">6. Commit</p><p class="say">"What would you need to see to move forward?" ${m.partner && m.partner!=='Aligned' ? 'Book the joint conversation with your partner now, with a date.' : 'Set a dated next step.'}</p>
+  </div></div></section>`;
+}
+function pill(val, good, warn){ if(!val) return '<span class="pill na">Not yet</span>'; const c = good.includes(val)?'good': warn.includes(val)?'warn':'bad'; return `<span class="pill ${c}">${esc(val)}</span>`; }
+function renderReadout(){
+  const m=model(); const ro=document.getElementById('readout'); const max=Math.max(6,...Object.values(m.scores));
+  const flagText = { DQCHECK:['bad','Crisis trigger: check DQ1 (distress) and DQ2 (dispute)'], SHORT:['warn','Buyer already interested inside 12 months: ValuIQ by default; if the business is complex, consider Enterprise focused on Prepare, or Vesticor.'], GAP:['warn','Value expectation from a peer or rule of thumb: readout risk'], WEALTH:['warn','Has not worked out what he needs: Ironwood referral alongside'], SCOPE:['warn','More than one company: scope and price per company, or Enterprise'], PLATEAU:['warn','Flat revenue: highest denial risk ("we\'re fine")'], SLIDE:['warn','Revenue sliding: urgency; check distress with F2'], CASH:['bad','Owner funding the business or lender pressure: check DQ1'], DQ2:['bad','Partner tension: check DQ2; joint conversation before anything else'] };
+  let flags = [...m.flags].map(f=>flagText[f]).filter(Boolean);
+  if(m.contradiction) flags.push(['warn','R2 and R3 disagree: use the planned observation']);
+  if(m.readiness!=null && m.readiness<=5) flags.push(['bad','Readiness 5 or below: no retainer price']);
+  if(m.commitRisk) flags.push(['warn','Past help not finished: commitment risk']);
+  if(m.capacity==='Overstretched, no delegate') flags.push(['warn','Overstretched with no delegate: lead the close with the effort reframe']);
+  ro.innerHTML = `
+  <div class="panel rec"><h3>Recommendation</h3><p class="plan">${esc(initiative())}</p>
+    <dl class="kv rk"><dt>Engagement</dt><dd>${esc(engagementName(m.plan))}</dd><dt>Term</dt><dd>${['Enterprise','ValuIQ','Judgment call'].includes(m.plan)?'12-month retainer':'-'}</dd><dt>Sequence</dt><dd>${esc(sequence(m.plan))}</dd><dt>Price</dt><dd>${m.plan==='Judgment call'?esc(PRICE.VS+' or '+PRICE.RP):m.plan==='Enterprise'?esc(PRICE.RP):m.plan==='ValuIQ'?esc(PRICE.VS):'Do not price'}</dd></dl>
+    <p class="why">${esc(m.why||'Answer the opener and gateway questions to begin.')}</p>
+    <div class="bars">${Object.entries(m.scores).map(([k,v])=>`<div class="brow"><span>${esc(k)}</span><span class="btrack"><span class="bfill" style="width:${Math.max(0,v)/max*100}%"></span></span><span class="v">${v}</span></div>`).join('')}</div></div>
+  <div class="panel"><h3>Decision path</h3>${treeHTML(m)}<p class="sig" style="margin:8px 0 0">A guideline, not a formula. Record the actual decision on the <a href="#aar">After Action Review</a> page.</p></div>
+  <div class="panel"><h3>Mindset profile</h3><dl class="kv">
+    <dt>Problem solving</dt><dd>${pill(m.style,['Strategic'],['Mixed'])}</dd>
+    <dt>Problem awareness</dt><dd>${pill(m.awareness,['Aware and motivated'],['Minimizing'])}</dd>
+    <dt>Owner dependency</dt><dd>${pill(m.depLevel,['Low'],['Moderate'])}</dd>
+    <dt>Capacity</dt><dd>${pill(m.capacity,['Has capacity'],['Overstretched, has delegate'])}</dd>
+    <dt>Locus of control</dt><dd>${pill(m.loc==='ext'?'External':(A('Q2')||A('G2')?'Internal':null),['Internal'],[])}</dd>
+    <dt>Partner alignment</dt><dd>${A('PX')==='no'?'<span class="pill na">Sole owner</span>':pill(m.partner,['Aligned'],['Unverified','Divergent'])}</dd>
+    <dt>Openness</dt><dd>${pill(m.open?m.open[0].toUpperCase()+m.open.slice(1):null,['Open'],['Neutral'])}</dd>
+    <dt>Readiness (C2)</dt><dd>${m.readiness==null?'<span class="pill na">Not yet</span>':`<span class="pill ${m.readiness>=8?'good':m.readiness>=6?'warn':'bad'}">${m.readiness>=10?'9 to 10':m.readiness} / 10</span>`}</dd>
+  </dl></div>
+  <div class="panel"><h3>Decision drivers</h3>
+    <p class="dhead">Enterprise</p><ul class="drv">${m.entD.map(d=>`<li class="${d.on?'on':''}"><span class="mk">${d.on?'Met':'Not met'}</span><span><b>${esc(d.k)}</b><br><span class="sig">${esc(d.ev)}</span></span></li>`).join('')}</ul>
+    <p class="dhead">ValuIQ</p><ul class="drv">${m.vqD.map(d=>`<li class="${d.on?'on vq':''}"><span class="mk">${d.on?'Met':'Not met'}</span><span><b>${esc(d.k)}</b><br><span class="sig">${esc(d.ev)}</span></span></li>`).join('')}</ul>
+    <p class="sig" style="margin:10px 0 0"><b>Self-work at every level:</b> internal owner ${S.n.L2?`<b>${esc(S.n.L2)}</b>`:'not named yet'}.</p>
+  </div>
+  ${(m.plan==='ValuIQ'||m.lean==='ValuIQ')?`<div class="panel"><h3>Upgrade triggers to watch</h3><ul class="flags">${[
+     'A buyer, banker, or offer appears',
+     'Growth accelerates and systems or cash start to strain',
+     'Roles he is covering become urgent (finance, operations, EOS)',
+     'Scorecard exposes issues his team cannot fix alone',
+     'Exit date firms up two or more years out with value to build'].map(t=>`<li>${t}</li>`).join('')}</ul></div>`:''}
+  <div class="panel"><h3>Flags and pivots</h3>${flags.length?`<ul class="flags">${flags.map(([c,t])=>`<li class="${c}">${esc(t)}</li>`).join('')}</ul>`:'<p class="sig" style="margin:0">None yet.</p>'}</div>
+  <div class="panel"><h3>After the call</h3><div class="actions"><button class="btn primary" id="copyBtn" type="button">Copy CRM summary</button></div>
+    <textarea class="copyout" id="copyOut" readonly hidden aria-label="CRM summary"></textarea><p class="sig" id="copyMsg" style="margin:8px 0 0"></p></div>`;
+  document.getElementById('chipPath').textContent = initiative();
+  document.getElementById('chipPlan').textContent = m.plan==='Judgment call'?`Judgment: leans ${m.lean}`: m.plan==='Enterprise'?'Enterprise (12 mo)': m.plan==='ValuIQ'?'ValuIQ (12 mo)': m.plan;
+  document.getElementById('chipClass').textContent = `Enterprise ${m.entD.filter(d=>d.on).length}/4, ValuIQ ${m.vqD.filter(d=>d.on).length}/4`;
+}
+function crmText(){
+  const m=model(); const L=[];
+  L.push(`Prospect: ${S.prospect||'(unnamed)'}`); L.push(`Initiative: ${initiative()} | Engagement: ${engagementName(m.plan)}${['Enterprise','ValuIQ','Judgment call'].includes(m.plan)?' (12-month retainer)':''} | Branch: ${m.branch||'-'}`); L.push(`Enterprise drivers: ${m.entD.filter(d=>d.on).map(d=>d.k).join(', ')||'none'} | ValuIQ drivers: ${m.vqD.filter(d=>d.on).map(d=>d.k).join(', ')||'none'} | Internal owner: ${S.n.L2||'not named'}`);
+  L.push(`Mindset: ${m.style||'-'}; awareness ${m.awareness||'-'}; dependency ${m.depLevel||'-'}; capacity ${m.capacity||'-'}; partners ${A('PX')==='no'?'sole owner':(m.partner||'-')}; openness ${m.open||'-'}; readiness ${m.readiness??'-'}`);
+  SECTIONS.forEach(sec=>sec.qs.forEach(q=>{ if(!isVisible(q,sec)) return; const v=A(q.id); if(v==null) return;
+    const lbl = Array.isArray(v)? v.map(x=>q.opts.find(o=>o.v===x)?.l).join(', ') : (q.opts.find(o=>o.v===v)?.l||v);
+    L.push(`${q.id}: ${lbl}${S.n[q.id]?` | "${S.n[q.id]}"`:''}`); }));
+  if(S.obs) L.push(`Planned observation reaction: ${S.obs}`);
+  const flags=[...m.flags]; if(flags.length) L.push(`Flags: ${flags.join(', ')}`);
+  return L.join('\n');
+}
+
+/* ---------- timer ---------- */
+function elapsed(){ return S.timer.acc + (S.timer.startedAt? (Date.now()-S.timer.startedAt):0); }
+function tick(){ const ms=elapsed(); const mm=Math.floor(ms/60000), ss=Math.floor(ms/1000)%60;
+  document.getElementById('clock').textContent = `${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
+  document.getElementById('tStart').textContent = S.timer.startedAt? 'Pause' : (ms? 'Resume':'Start call');
+  const m=model(); const p=pathway(); let cp;
+  if(mm<10) cp = 'Minute 10: pathway should be clear. If Neither, shorten and check disqualifiers.';
+  else if(mm<20) cp = p==='Open' ? 'Behind: pathway still open. Skip probes; answer Q4 and Q5.' : 'Minute 20: business snapshot done. Several companies? Close on scoping, not price.';
+  else if(mm<30) cp = 'Minute 30: reality check done. Denial? Skip the observation if guarded; go straight to C1.';
+  else if(mm<40) cp = m.partner==='Divergent'||m.partner==='Conflict' ? 'Partners diverge: stop selling; close on a joint conversation.' : 'Minute 40: people and load done. No delegate? Lead the close with the effort reframe.';
+  else if(mm<45) cp = 'Minute 45: C1 and C2 must be asked now. Never skip them.';
+  else if(mm<55) cp = (m.readiness!=null && m.readiness<=5) ? 'Readiness 5 or below: no retainer price. Value Snapshot and a follow-up date.' : 'Close: his summary first, then the gap in his words.';
+  else cp = 'Buffer. If C1 is not asked yet, book a second call within 7 days rather than rush.';
+  document.getElementById('cpText').textContent = cp; }
+
+/* ---------- events ---------- */
+function rerender(){ const y=window.scrollY; const f=document.activeElement&&document.activeElement.id; renderMain(); renderReadout(); window.scrollTo(0,y); if(f){ const el=document.getElementById(f); if(el) el.focus({preventScroll:true}); } tick(); document.getElementById('exText').innerHTML = S.example ? '<b>Example call loaded.</b> Hartwell Mechanical is a fictional prospect showing how answers drive the readout. Start a new call to clear it.' : '<b>Live call.</b> Answers save in this browser only. Copy the CRM summary before starting the next call.'; }
+document.addEventListener('change', e=>{
+  const t=e.target;
+  if(t.matches('select[data-q]')){ const id=t.dataset.q; if(t.value) S.a[id]=t.value; else delete S.a[id]; S.example=false; save(); rerender(); }
+  else if(t.matches('input[type=checkbox][data-q]')){ const id=t.dataset.q; let cur=(S.a[id]||[]).slice(); if(t.checked) cur.push(t.dataset.v); else cur=cur.filter(x=>x!==t.dataset.v); if(cur.length) S.a[id]=cur; else delete S.a[id]; save(); rerender(); }
+  else if(t.id==='override'){ S.override=t.value; save(); rerender(); }
+  else if(t.id==='obs'){ S.obs=t.value; save(); rerender(); }
+});
+document.addEventListener('input', e=>{ const t=e.target;
+  if(t.matches('textarea[data-note]')){ S.n[t.dataset.note]=t.value; save(); clearTimeout(window._nt); window._nt=setTimeout(()=>{ renderReadout(); const c=document.getElementById('close'); if(c){ c.outerHTML = closeSection(); } },500); }
+  else if(t.id==='prospect'){ S.prospect=t.value; save(); } });
+document.addEventListener('click', e=>{ const t=e.target;
+  if(t.id==='tStart'){ if(S.timer.startedAt){ S.timer.acc=elapsed(); S.timer.startedAt=null; } else S.timer.startedAt=Date.now(); save(); tick(); }
+  else if(t.id==='tReset'){ S.timer={acc:0,startedAt:null}; save(); tick(); }
+  else if(t.id==='newCall'){ document.getElementById('newCallWrap').innerHTML = `<span>Clear all answers and notes?</span><button class="btn primary" id="newYes" type="button">Clear and start</button><button class="btn" id="newNo" type="button">Keep</button>`; }
+  else if(t.id==='newNo'){ document.getElementById('newCallWrap').innerHTML = `<button class="btn primary" id="newCall" type="button">Start a new call</button>`; }
+  else if(t.id==='newYes'){ S=BLANK(); S.id='c'+Date.now(); S.aar={}; save(); document.getElementById('prospect').value=''; document.getElementById('newCallWrap').innerHTML = `<button class="btn primary" id="newCall" type="button">Start a new call</button>`; rerender(); window.scrollTo(0,0); }
+  else if(t.id==='copyBtn'){ const txt=crmText(); const out=document.getElementById('copyOut'); const msg=document.getElementById('copyMsg');
+    const fallback=()=>{ out.hidden=false; out.value=txt; out.focus(); out.select(); msg.textContent='Copy blocked here. The summary is selected; press Ctrl or Cmd + C.'; };
+    try{ navigator.clipboard.writeText(txt).then(()=>{ msg.textContent='Copied. Paste it into the CRM record.'; }, fallback); }catch(err){ fallback(); } }
+});
+
+function treeHTML(m){
+  const rows = m.trace.map(g=>`<div class="gate ${g.pick?'reached':''}"><span class="gn">${esc(g.gate)}</span><span class="gopts">${g.opts.map(o=>`<span class="gopt ${o===g.pick?'pick':''}">${esc(o)}</span>`).join('')}</span>${g.note?`<span class="gnote">${esc(g.note)}</span>`:''}</div>`).join('');
+  const res = m.plan==='Pending' ? 'Result pending' : m.plan==='Judgment call' ? `Judgment call, leans ${m.lean}` : m.plan;
+  return `<div class="tree">${rows}<div class="tresult">Guideline: ${esc(res)}</div></div>`;
+}
+
+/* ---------- After Action Review ---------- */
+const LOGKEY='pando-aar-log-v1';
+const OUTCOMES=['Open','Signed ValuIQ','Signed Enterprise','Stalled','Lost','Disqualified or referred'];
+const DECISIONS=['ValuIQ','Enterprise','Hold','Not ready / follow-up','Referred out'];
+function loadLog(){ try{ const r=localStorage.getItem(LOGKEY); if(r) return JSON.parse(r); }catch(e){} return EXAMPLE_LOG.slice(); }
+function saveLog(){ try{ localStorage.setItem(LOGKEY, JSON.stringify(LOG)); }catch(e){} }
+const EXAMPLE_LOG=[
+ {id:'ex1', example:true, savedAt:'2026-10-14', prospect:'Example: Brightline Dental Group', initiative:'Exit initiative', branch:'Exit under 2 years', drivers:'complexity', profit:'$1M to $3M', guideline:'Judgment call, leans Enterprise', decision:'Enterprise', reason:'Buyer LOI expected in Q1; PE buyer will run full diligence.', outcome:'Signed Enterprise', outcomeDate:'2026-10-28', same:'Yes', expected:'Enterprise focused on Prepare', happened:'Signed after one follow-up', why:'Buyer timeline created urgency', differently:'Ask about the LOI terms on the first call'},
+ {id:'ex2', example:true, savedAt:'2026-10-20', prospect:'Example: Caldwell Landscaping', initiative:'Growth initiative', branch:'Not selling', drivers:'internal labor', profit:'$250K to $500K', guideline:'Judgment call, leans ValuIQ', decision:'ValuIQ', reason:'Owner wants structure; budget tight.', outcome:'Signed ValuIQ', outcomeDate:'2026-11-02', same:'Yes', expected:'ValuIQ', happened:'Signed', why:'', differently:''},
+ {id:'ex3', example:true, savedAt:'2026-10-27', prospect:'Example: Mercer Fabrication', initiative:'Exit and growth initiative', branch:'Exit 2 to 5 years', drivers:'growth, complexity, runway to grow', profit:'$1M to $3M', guideline:'Enterprise', decision:'Enterprise', reason:'', outcome:'Stalled', outcomeDate:'', same:'', expected:'Signed within two weeks', happened:'Partner not engaged', why:'Second partner never joined a call', differently:'Book the joint call before the proposal'}
+];
+let LOG = loadLog();
+S.aar = S.aar || {};
+function aarDefaults(){ return {decision:'', decidedBy:'', reason:'', expected:'', happened:'', why:'', differently:'', outcome:'Open', outcomeDate:'', same:''}; }
+function fld(id,label,hint,type,opts){ const v=(S.aar||{})[id]??''; const name=`aar-${id}`;
+  if(type==='select') return `<div class="field"><label for="${name}">${label}</label>${hint?`<span class="hint">${hint}</span>`:''}<select id="${name}" data-aar="${id}"><option value="">Choose</option>${opts.map(o=>`<option ${v===o?'selected':''}>${esc(o)}</option>`).join('')}</select></div>`;
+  if(type==='text') return `<div class="field"><label for="${name}">${label}</label>${hint?`<span class="hint">${hint}</span>`:''}<input id="${name}" data-aar="${id}" value="${esc(v)}"></div>`;
+  if(type==='date') return `<div class="field"><label for="${name}">${label}</label><input type="date" id="${name}" data-aar="${id}" value="${esc(v)}"></div>`;
+  return `<div class="field"><label for="${name}">${label}</label>${hint?`<span class="hint">${hint}</span>`:''}<textarea id="${name}" data-aar="${id}">${esc(v)}</textarea></div>`; }
+function guideText(m){ return m.plan==='Judgment call' ? `Judgment call, leans ${m.lean}` : m.plan; }
+function renderAar(){
+  const m=model(); S.aar = Object.assign(aarDefaults(), S.aar||{});
+  const differs = S.aar.decision && !String(guideText(m)).includes(S.aar.decision.split(' ')[0]);
+  const real = LOG.filter(r=>!r.example);
+  const decided = LOG.filter(r=>r.decision);
+  const matched = decided.filter(r=>String(r.guideline).includes(r.decision.split(' ')[0])).length;
+  const signed = LOG.filter(r=>/^Signed/.test(r.outcome)).length;
+  const closedN = LOG.filter(r=>r.outcome && r.outcome!=='Open').length;
+  const branches = ['Exit under 2 years','Exit 2 to 5 years','No defined timeline','Not selling'];
+  const byBranch = branches.map(b=>{ const rs=LOG.filter(r=>r.branch===b); const sg=rs.filter(r=>/^Signed/.test(r.outcome)).length; return `<div class="stat"><div class="big">${rs.length?sg+'/'+rs.length:'-'}</div><div class="lbl">Signed: ${esc(b)}</div></div>`; }).join('');
+  document.getElementById('viewAar').innerHTML = `<div class="aar">
+   <div class="sec-h"><h2>After Action Review: ${esc(S.prospect||'this call')}</h2><span class="clk">${esc(initiative())}</span></div>
+   <p class="sec-intro">The pathway rules are guidelines. This page records what the guideline said, what we decided, and how it turned out, so the guidelines can be tuned from our own deals.</p>
+   <div class="aar-grid">
+     <div class="panel"><h3>Decision path for this call</h3>${treeHTML(m)}<p class="sig" style="margin:10px 0 0">${esc(m.why||'')}</p></div>
+     <div class="panel"><h3>Our decision</h3><div class="fields">
+       ${fld('decision','What we decided','','select',DECISIONS)}
+       ${fld('decidedBy','Who decided','Names','text')}
+       ${fld('reason', differs?'Why we went against the guideline (required)':'Why', differs?'The most valuable data on this page. Be specific.':'','area')}
+     </div></div>
+   </div>
+   <div class="panel"><h3>After Action Review</h3><div class="aar-grid">
+     <div class="fields">${fld('expected','What did we expect to happen?','After the call: plan, timing, likely objections','area')}${fld('happened','What actually happened?','','area')}</div>
+     <div class="fields">${fld('why','Why was there a difference?','','area')}${fld('differently','What will we do differently next time?','Feeds the question guide and the guideline','area')}</div>
+   </div>
+   <div class="aar-grid" style="margin-top:12px"><div class="fields">${fld('outcome','Outcome','Update when it changes','select',OUTCOMES)}${fld('outcomeDate','Outcome date','','date')}</div>
+     <div class="fields">${fld('same','Would we route it the same way again?','','select',['Yes','No','Unsure'])}
+     <div class="actions" style="margin-top:6px"><button class="btn primary" id="aarSave" type="button">Save to AAR log</button><span class="sig" id="aarMsg"></span></div></div></div>
+   </div>
+   <div class="sec-h"><h2>AAR log</h2><span class="clk">${LOG.length} record${LOG.length===1?'':'s'}${LOG.some(r=>r.example)?', including examples':''}</span></div>
+   <div class="stats">
+     <div class="stat"><div class="big">${decided.length?Math.round(matched/decided.length*100)+'%':'-'}</div><div class="lbl">Decisions that followed the guideline</div></div>
+     <div class="stat"><div class="big">${closedN?Math.round(signed/closedN*100)+'%':'-'}</div><div class="lbl">Signed, of closed outcomes</div></div>
+     ${byBranch}
+   </div>
+   <div class="tablewrap"><table class="log"><thead><tr><th>Date</th><th>Prospect</th><th>Branch</th><th>Drivers met</th><th>Guideline</th><th>Decided</th><th>Why</th><th>Outcome</th><th></th></tr></thead><tbody>
+   ${LOG.length? LOG.map(r=>`<tr><td>${esc(r.savedAt)}</td><td>${esc(r.prospect)}</td><td>${esc(r.branch||'-')}</td><td>${esc(r.drivers||'-')}</td><td>${esc(r.guideline)}</td><td>${esc(r.decision||'-')}</td><td>${esc(r.reason||'')}</td>
+     <td><select data-log="${esc(r.id)}" aria-label="Outcome for ${esc(r.prospect)}">${OUTCOMES.map(o=>`<option ${r.outcome===o?'selected':''}>${o}</option>`).join('')}</select></td>
+     <td><button class="lnk" data-del="${esc(r.id)}" type="button">Remove</button></td></tr>`).join('') : `<tr><td colspan="9">No reviews saved yet. Complete a call, record the decision above, and save it here.</td></tr>`}
+   </tbody></table></div>
+   <div class="actions">${LOG.some(r=>r.example)?'<button class="btn" id="clearEx" type="button">Remove example records</button>':''}<button class="btn" id="copyCsv" type="button">Copy log as CSV</button><span class="sig" id="csvMsg"></span></div>
+   <textarea class="copyout" id="csvOut" readonly hidden aria-label="AAR log CSV"></textarea>
+  </div>`;
+}
+function saveAarRecord(){
+  const m=model(); const a=S.aar; if(!S.id) S.id='c'+Date.now();
+  const rec={ id:S.id, savedAt:new Date().toISOString().slice(0,10), prospect:S.prospect||'(unnamed)', initiative:initiative(), branch:m.branch||'', drivers:m.entD.filter(d=>d.on).map(d=>d.k.toLowerCase()).join(', '),
+    profit:(optOf('F3')||{}).l||'', guideline:guideText(m), decision:a.decision, reason:a.reason, decidedBy:a.decidedBy, expected:a.expected, happened:a.happened, why:a.why, differently:a.differently, outcome:a.outcome||'Open', outcomeDate:a.outcomeDate, same:a.same,
+    mindset:[m.style,m.awareness,m.depLevel,m.capacity].filter(Boolean).join('; '), readiness:m.readiness??'' };
+  const i=LOG.findIndex(r=>r.id===rec.id); if(i>=0) LOG[i]=rec; else LOG.unshift(rec); saveLog(); save(); renderAar();
+  const msg=document.getElementById('aarMsg'); if(msg) msg.textContent='Saved. Update the outcome here or in the log as it changes.';
+}
+function csv(){ const cols=['savedAt','prospect','initiative','branch','drivers','profit','mindset','readiness','guideline','decision','decidedBy','reason','expected','happened','why','differently','outcome','outcomeDate','same'];
+  const q=v=>`"${String(v??'').replace(/"/g,'""')}"`; return [cols.join(','), ...LOG.map(r=>cols.map(c=>q(r[c])).join(','))].join('\n'); }
+function route(){ const aar = location.hash==='#aar'; document.getElementById('viewCall').hidden=aar; document.getElementById('viewAar').hidden=!aar; document.getElementById('exampleBar').hidden=aar;
+  document.getElementById('tabCall').classList.toggle('on',!aar); document.getElementById('tabAar').classList.toggle('on',aar); if(aar) renderAar(); }
+window.addEventListener('hashchange', ()=>{ route(); window.scrollTo(0,0); });
+document.addEventListener('change', e=>{ const t=e.target;
+  if(t.matches('[data-aar]')){ S.aar[t.dataset.aar]=t.value; save(); if(['decision','outcome'].includes(t.dataset.aar)){ const f=t.id; renderAar(); const el=document.getElementById(f); if(el) el.focus(); } }
+  else if(t.matches('select[data-log]')){ const r=LOG.find(x=>x.id===t.dataset.log); if(r){ r.outcome=t.value; if(r.id===S.id) S.aar.outcome=t.value; saveLog(); save(); renderAar(); } } });
+document.addEventListener('input', e=>{ const t=e.target; if(t.matches('input[data-aar],textarea[data-aar]')){ S.aar[t.dataset.aar]=t.value; save(); } });
+document.addEventListener('click', e=>{ const t=e.target;
+  if(t.id==='aarSave') saveAarRecord();
+  else if(t.dataset && t.dataset.del){ if(t.dataset.confirm){ LOG=LOG.filter(r=>r.id!==t.dataset.del); saveLog(); renderAar(); } else { t.dataset.confirm='1'; t.textContent='Confirm remove'; } }
+  else if(t.id==='clearEx'){ LOG=LOG.filter(r=>!r.example); saveLog(); renderAar(); }
+  else if(t.id==='copyCsv'){ const txt=csv(); const out=document.getElementById('csvOut'); const msg=document.getElementById('csvMsg');
+    const fb=()=>{ out.hidden=false; out.value=txt; out.focus(); out.select(); msg.textContent='Copy blocked here. The CSV is selected; press Ctrl or Cmd + C.'; };
+    try{ navigator.clipboard.writeText(txt).then(()=>{ msg.textContent='Copied. Paste into a spreadsheet.'; }, fb); }catch(err){ fb(); } } });
+
+load(); document.getElementById('prospect').value=S.prospect||''; rerender(); route(); setInterval(tick,1000);
+// rail highlight
+const io = 'IntersectionObserver' in window ? new IntersectionObserver(es=>{ es.forEach(en=>{ if(en.isIntersecting){ document.querySelectorAll('.rail a').forEach(a=>a.classList.toggle('on', a.dataset.sec===en.target.id)); } }); }, {rootMargin:'-140px 0px -60% 0px'}) : null;
+function observe(){ if(!io) return; io.disconnect(); document.querySelectorAll('.sec').forEach(s=>io.observe(s)); }
+const _rr = rerender; rerender = function(){ _rr(); observe(); }; observe();
+</script>
+</body>
+</html>
