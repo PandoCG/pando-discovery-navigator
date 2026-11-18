@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -6,7 +6,6 @@
 <meta name="robots" content="noindex, nofollow">
 <style>
 :root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:14px}
 img{max-width:100%}
 [hidden]{display:none!important}
 </style>
@@ -38,36 +37,47 @@ img{max-width:100%}
   --good-bg:#1E3328; --warn-bg:#3A2F1C; --bad-bg:#3D2321; color-scheme:dark}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
-body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:14px;line-height:1.5}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:14px;line-height:1.5}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--forest)}
 button,select,input,textarea{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 
 .bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--forest);color:var(--on-forest);
   padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-.bar-in{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;max-width:1440px;margin:0 auto}
+.bar-in{display:flex;flex-direction:column;gap:10px;max-width:1440px;margin:0 auto}
+.row1{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px}
+.row2{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 18px}
+.who{display:flex;align-items:center;gap:8px;font-size:12.5px}
+.who label{color:rgba(246,245,240,.75)}
+.who select{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.25);color:var(--on-forest);border-radius:6px;padding:6px 8px;min-width:170px}
+.who select.need{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold)}
+.who select option{background:#FFFFFF;color:#1B231F}
 .brand{display:flex;flex-direction:column;min-width:0}
 .eyebrow{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:600}
 .brand h1{margin:0;font-size:18px;font-weight:600;letter-spacing:.01em}
-.prospect{flex:1 1 200px;min-width:0;max-width:300px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:6px;padding:7px 10px;color:var(--on-forest)}
+.prospect{flex:1 1 200px;min-width:0;max-width:340px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:6px;padding:7px 10px;color:var(--on-forest)}
 .prospect::placeholder{color:rgba(246,245,240,.55)}
 .timer{display:flex;align-items:center;gap:8px}
 .clock{font-variant-numeric:tabular-nums;font-size:20px;font-weight:600;min-width:62px}
 .tbtn{background:transparent;border:1px solid rgba(255,255,255,.3);color:var(--on-forest);border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12.5px}
 .tbtn:hover{border-color:var(--gold)}
-.chips{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
 .chip{font-size:12px;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);white-space:nowrap}
 .chip b{color:var(--gold);font-weight:600}
-.cp{max-width:1440px;margin:8px auto 0;font-size:12.5px;color:rgba(246,245,240,.85);display:flex;gap:8px;align-items:baseline}
+.cp{margin:0;font-size:12.5px;color:rgba(246,245,240,.85);display:flex;gap:8px;align-items:baseline}
 .cp strong{color:var(--gold);font-weight:600;white-space:nowrap}
 
 .example{max-width:1440px;margin:12px auto 0;background:var(--gold-soft);border:1px solid var(--gold);color:var(--fg);border-radius:8px;padding:10px 14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
 .wrap{padding-block:16px 60px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .grid{max-width:1440px;margin:0 auto;display:grid;grid-template-columns:220px minmax(0,1fr) 360px;gap:20px;align-items:start}
 @media (max-width:1180px){.grid{grid-template-columns:200px minmax(0,1fr)}.readout{grid-column:1/-1}}
-@media (max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}.rail{position:static!important}}
+@media (max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}
+  .rail{position:static!important;flex-direction:row;overflow-x:auto;gap:6px;padding-bottom:4px}
+  .rail a{flex:0 0 auto;border-left:none;border-bottom:3px solid transparent;background:var(--surface)}
+  .rail a.on{border-bottom-color:var(--gold)}
+  .q-body{margin-left:0!important}}
 
-.rail{position:sticky;top:calc(env(safe-area-inset-top,0px) + 112px);display:flex;flex-direction:column;gap:4px}
+.rail{position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--hdr,130px) + 12px);display:flex;flex-direction:column;gap:4px}
 .rail a{display:flex;justify-content:space-between;gap:8px;padding:8px 10px;border-radius:6px;color:var(--fg);text-decoration:none;font-size:13px;border-left:3px solid transparent}
 .rail a:hover{background:var(--surface-2)}
 .rail a.on{border-left-color:var(--gold);background:var(--surface)}
@@ -76,7 +86,7 @@ button,select,input,textarea{font:inherit;color:inherit}
 .rail .mins{font-size:11px;color:var(--muted)}
 
 .main{display:flex;flex-direction:column;gap:22px;min-width:0}
-.sec{display:flex;flex-direction:column;gap:12px;scroll-margin-top:130px}
+.sec{display:flex;flex-direction:column;gap:12px;scroll-margin-top:calc(var(--hdr,130px) + 12px)}
 .sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;border-bottom:2px solid var(--forest-2);padding-bottom:6px}
 .sec-h h2{margin:0;font-size:17px;font-weight:600;text-wrap:balance}
 .sec-h .clk{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -87,7 +97,12 @@ button,select,input,textarea{font:inherit;color:inherit}
 .q.gate{border-color:var(--gold);box-shadow:inset 4px 0 0 var(--gold)}
 .q.done{border-color:var(--forest-2)}
 .q-top{display:flex;gap:10px;align-items:flex-start}
-.qid{font-weight:600;font-size:12px;color:var(--forest-2);min-width:30px;padding-top:2px;font-variant-numeric:tabular-nums}
+.q-body{margin-left:42px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.qid{flex:0 0 32px}
+.nlabel{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:-6px}
+.secnotes{background:var(--surface);border:1px dashed var(--forest-2);border-radius:10px;padding:12px 16px;display:flex;flex-direction:column;gap:8px}
+.secnotes label{font-size:12px;font-weight:600;color:var(--forest-2)}
+.qid{font-weight:600;font-size:12px;color:var(--forest-2);padding-top:3px;font-variant-numeric:tabular-nums}
 .q-text{font-size:15px;font-weight:500;margin:0;flex:1;min-width:0}
 .tags{display:flex;gap:6px;flex-wrap:wrap}
 .tag{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;padding:2px 7px;border-radius:4px;background:var(--surface-2);color:var(--muted)}
@@ -112,7 +127,7 @@ details.why p{margin:6px 0 0;max-width:72ch}
 .banner.good{background:var(--good-bg);border:1px solid var(--good)}
 .banner b{display:block;margin-bottom:2px}
 
-.readout{position:sticky;top:calc(env(safe-area-inset-top,0px) + 112px);display:flex;flex-direction:column;gap:14px;max-height:calc(100vh - 130px);overflow:auto;min-width:0}
+.readout{position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--hdr,130px) + 12px);display:flex;flex-direction:column;gap:14px;max-height:calc(100vh - var(--hdr,130px) - 28px);overflow:auto;min-width:0}
 @media (max-width:1180px){.readout{position:static;max-height:none}}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
 .panel h3{margin:0 0 10px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
@@ -120,7 +135,7 @@ details.why p{margin:6px 0 0;max-width:72ch}
 .rec h3{color:var(--gold)}
 .rec .plan{font-size:19px;font-weight:600;margin:0 0 4px}
 .rec .why{font-size:12.5px;opacity:.85;margin:10px 0 0}
-.rec .rk dt{color:var(--gold);opacity:.9}.rec .rk dd{color:var(--on-forest)}
+.rec .rk{grid-template-columns:92px 1fr}.rec .rk dt{color:var(--gold);opacity:.9}.rec .rk dd{color:var(--on-forest);text-align:left}
 .bars{display:flex;flex-direction:column;gap:7px;margin-top:12px}
 .brow{display:grid;grid-template-columns:110px 1fr 28px;gap:8px;align-items:center;font-size:12px}
 .btrack{display:block;height:7px;border-radius:4px;background:rgba(255,255,255,.14);overflow:hidden}
@@ -159,13 +174,13 @@ details.why p{margin:6px 0 0;max-width:72ch}
 .tabs a{color:var(--on-forest);text-decoration:none;font-size:13px;padding:6px 12px;border-radius:6px;white-space:nowrap}
 .tabs a.on{background:var(--gold);color:var(--forest);font-weight:600}
 .tree{display:flex;flex-direction:column;gap:8px}
-.gate{display:grid;grid-template-columns:120px 1fr;gap:8px;align-items:start}
-.gate .gn{font-size:11.5px;font-weight:600;color:var(--muted);padding-top:4px}
-.gate.reached .gn{color:var(--fg)}
+.tgate{display:flex;flex-direction:column;gap:5px}
+.tgate .gn{font-size:11.5px;font-weight:600;color:var(--muted)}
+.tgate.reached .gn{color:var(--fg)}
 .gopts{display:flex;flex-wrap:wrap;gap:5px}
 .gopt{font-size:11.5px;padding:3px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
 .gopt.pick{background:var(--forest-2);border-color:var(--forest-2);color:var(--surface);font-weight:600}
-.gnote{grid-column:2;font-size:11.5px;color:var(--muted)}
+.gnote{font-size:11.5px;color:var(--muted)}
 .tresult{margin-top:4px;padding:8px 10px;border-radius:8px;background:var(--gold-soft);font-size:13px;font-weight:600}
 .aar{max-width:1180px;margin:16px auto 0;display:flex;flex-direction:column;gap:18px}
 .aar-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
@@ -187,26 +202,39 @@ table.log th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:
 table.log select{padding:4px 6px;border:1px solid var(--line);border-radius:6px;background:var(--surface-2);font-size:12px}
 .lnk{background:none;border:none;color:var(--forest-2);cursor:pointer;text-decoration:underline;padding:0;font-size:12px}
 @media (prefers-reduced-motion:no-preference){.bfill{transition:width .3s ease}}
+@media (max-width:760px){
+  .bar{position:static}
+  .rail{flex-direction:row;overflow-x:auto;gap:6px;padding-bottom:4px}
+  .rail a{flex:0 0 auto;border-left:none;border-bottom:3px solid transparent;background:var(--surface)}
+  .rail a.on{border-bottom-color:var(--gold)}
+  .who select{min-width:0;flex:1}
+  .who{flex:1 1 100%}
+}
 </style>
 </head>
 <body>
 <header class="bar">
   <div class="bar-in">
-    <div class="brand"><span class="eyebrow">Pando Consulting Group</span><h1>Discovery Navigator</h1></div>
-    <nav class="tabs" aria-label="Views"><a href="#call" id="tabCall">Call</a><a href="#aar" id="tabAar">After Action Review</a></nav>
-    <input id="prospect" class="prospect" placeholder="Prospect / company" aria-label="Prospect or company name">
-    <div class="timer">
-      <span id="clock" class="clock" aria-live="polite">00:00</span>
-      <button id="tStart" class="tbtn" type="button">Start call</button>
-      <button id="tReset" class="tbtn" type="button">Reset clock</button>
+    <div class="row1">
+      <div class="brand"><span class="eyebrow">Pando Consulting Group</span><h1>Discovery Navigator</h1></div>
+      <nav class="tabs" aria-label="Views"><a href="#call" id="tabCall">Call</a><a href="#aar" id="tabAar">After Action Review</a></nav>
+      <div class="who"><label for="facilitator">Facilitator</label><select id="facilitator"><option value="">Select</option><option>Eric Terry</option><option>Bennett Lebowitz</option><option>Mark Jacobsen</option><option>Mark Levine</option></select></div>
+      <input id="prospect" class="prospect" placeholder="Prospect / company" aria-label="Prospect or company name">
+      <div class="timer">
+        <span id="clock" class="clock" aria-live="polite">00:00</span>
+        <button id="tStart" class="tbtn" type="button">Start call</button>
+        <button id="tReset" class="tbtn" type="button">Reset clock</button>
+      </div>
     </div>
-    <div class="chips">
-      <span class="chip">Initiative <b id="chipPath">Not set</b></span>
-      <span class="chip">Engagement <b id="chipPlan">Pending</b></span>
-      <span class="chip">Drivers <b id="chipClass">-</b></span>
+    <div class="row2">
+      <div class="chips">
+        <span class="chip">Initiative <b id="chipPath">Not set</b></span>
+        <span class="chip">Engagement <b id="chipPlan">Pending</b></span>
+        <span class="chip">Drivers <b id="chipClass">-</b></span>
+      </div>
+      <div class="cp" id="checkpoint"><strong>Next checkpoint</strong><span id="cpText">Minute 10: pathway should be clear by now.</span></div>
     </div>
   </div>
-  <div class="cp" id="checkpoint"><strong>Next checkpoint</strong><span id="cpText">Minute 10: pathway should be clear by now.</span></div>
 </header>
 
 <div class="wrap">
@@ -487,12 +515,12 @@ const QBY = {}; SECTIONS.forEach(s=>s.qs.forEach(q=>QBY[q.id]=q));
 const BLANK = ()=>({ prospect:'', a:{}, n:{}, override:'', obs:'', timer:{acc:0, startedAt:null}, example:false });
 let S = BLANK();
 
-const EXAMPLE = { id:'exHartwell', aar:{decision:'Enterprise', decidedBy:'Bennett, Eric', reason:'', expected:'Proposal accepted after a joint call with both partners', outcome:'Open'}, prospect:'Hartwell Mechanical (example)', example:true, override:'', obs:'paused', timer:{acc:0,startedAt:null},
+const EXAMPLE = { id:'exHartwell', facilitator:'Bennett Lebowitz', aar:{decision:'Enterprise', decidedBy:'Bennett, Eric', reason:'', expected:'Proposal accepted after a joint call with both partners', outcome:'Open'}, prospect:'Hartwell Mechanical (example)', example:true, override:'', obs:'paused', timer:{acc:0,startedAt:null},
   a:{Q1:'tired',Q2:'self',Q3:'without',Q4:'back',Q5:'depends',E1:'2to3',E2:'peer',G1:'direction',G2:'stick',S1:'related',F1:'fast_lag',F3:'500to1m',F2:'watch',R2:'b',R3:'checked',R4:'stick',PX:'yes',P2:'exit',D1:['spouse'],L1:'bottleneck',L2:'named',L3:'ops',H1:'in',H2:'execution',C1:'concrete',C2:'8'},
   n:{Q1:'I\'m 61 and I\'m the guy who answers every call at 9pm.',Q3:'I want to take a month off and not have the phones blow up.',R2:'If Dana could price the big jobs without me.',R3:'Two days in Florida, on the phone every morning.',R4:'We hired an ops manager twice. Both times it fell back on me.',L1:'Quoting, scheduling the crews, chasing receivables.',L2:'Dana, our service manager',C1:'I\'ll be 64, still doing quotes, and the business is worth what it\'s worth today.',C2:'Because my wife is done with me working Saturdays.',S1:'Hartwell Properties LLC owns the building.',F1:'About $7M revenue, maybe $600K profit.',P2:'Mike wants to sell in two years; I want to grow it first.'} };
 
-function load(){ try{ const r = localStorage.getItem('pando-nav-v5'); if(r){ S = Object.assign(BLANK(), JSON.parse(r)); return; } }catch(e){} S = JSON.parse(JSON.stringify(EXAMPLE)); }
-function save(){ try{ localStorage.setItem('pando-nav-v5', JSON.stringify(S)); }catch(e){} }
+function load(){ try{ const r = localStorage.getItem('pando-nav-v6'); if(r){ S = Object.assign(BLANK(), JSON.parse(r)); return; } }catch(e){} S = JSON.parse(JSON.stringify(EXAMPLE)); }
+function save(){ try{ localStorage.setItem('pando-nav-v6', JSON.stringify(S)); }catch(e){} }
 const A = id => S.a[id];
 const esc = s => String(s??'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
@@ -613,6 +641,7 @@ function renderMain(){
     if(sec.intro) h += `<p class="sec-intro">${esc(sec.intro)}</p>`;
     if(sec.id==='p2') h += pathwayCard();
     qs.forEach(q=>{ h += qCard(q); if(q.id==='R3') h += obsCard(); if(q.id==='F2') h += distressCard(); });
+    h += sectionNotes(sec);
     h += `</section>`;
   });
   h += closeSection();
@@ -627,9 +656,11 @@ function qCard(q){
   const o = !Array.isArray(v) ? optOf(q.id) : null;
   const fu = o && o.fu ? `<div class="fu"><b>Challenge:</b> ${esc(o.fu)}</div>` : '';
   const why = q.why ? `<details class="why"><summary>Why this wording</summary><p>${esc(q.why)}</p></details>` : '';
-  const note = q.note!==undefined && q.note!=='' ? `<textarea class="note" id="note-${q.id}" data-note="${q.id}" placeholder="${esc(q.note)}">${esc(S.n[q.id]||'')}</textarea>` : '';
-  return `<div class="q ${q.gate?'gate':''} ${answered?'done':''}"><div class="q-top"><span class="qid">${q.id==='PX'?'Gate':q.id}</span><p class="q-text">${esc(q.text)}</p></div><div class="tags">${tags}</div>${why}${ctrl}${fu}${note}</div>`;
+  const note = noteBox(q.id, q.note || (q.probe ? 'Probe notes: what he said, follow-ups asked' : 'Notes: his words, tone, follow-ups'));
+  return `<div class="q ${q.gate?'gate':''} ${answered?'done':''}"><div class="q-top"><span class="qid">${q.id==='PX'?'Gate':q.id}</span><p class="q-text">${esc(q.text)}</p></div><div class="q-body"><div class="tags">${tags}</div>${why}${ctrl}${fu}${note}</div></div>`;
 }
+function noteBox(id, ph){ return `<span class="nlabel">Notes</span><textarea class="note" id="note-${id}" data-note="${id}" placeholder="${esc(ph)}" aria-label="Notes for ${esc(id)}">${esc(S.n[id]||'')}</textarea>`; }
+function sectionNotes(sec){ const id='sec-'+sec.id; return `<div class="secnotes"><label for="note-${id}">Section notes: ${esc(sec.title)}</label><textarea class="note" id="note-${id}" data-note="${id}" placeholder="Anything else from this part of the call: impressions, body language, items to follow up">${esc(S.n[id]||'')}</textarea></div>`; }
 function pathwayCard(){
   const rp = rawPath(); const cur = pathway();
   const cls = cur==='Neither'?'bad': cur==='Open'?'warn':'good';
@@ -639,10 +670,10 @@ function pathwayCard(){
 function obsCard(){
   const m=model(); if(!m.contradiction) return '';
   const r2 = optOf('R2'), r3 = optOf('R3');
-  return `<div class="q gate"><div class="q-top"><span class="qid">Obs</span><p class="q-text">Planned observation</p></div>
+  return `<div class="q gate"><div class="q-top"><span class="qid">Obs</span><p class="q-text">Planned observation</p></div><div class="q-body">
    <div class="fu"><b>Say:</b> "Can I share something I'm noticing? You described the business as '${esc(r2.l.toLowerCase())}', and you also said '${esc((S.n.R3||r3.l).toLowerCase())}'. How do those fit together?" Then stop talking.</div>
    <select class="sel" id="obs" aria-label="Reaction to observation"><option value="">His reaction</option>
-   ${[['curious','Curious; self-corrected'],['paused','Paused; partly agreed'],['defended','Defended or changed the subject'],['skipped','Skipped (rapport thin)']].map(([v,l])=>`<option value="${v}" ${S.obs===v?'selected':''}>${l}</option>`).join('')}</select></div>`;
+   ${[['curious','Curious; self-corrected'],['paused','Paused; partly agreed'],['defended','Defended or changed the subject'],['skipped','Skipped (rapport thin)']].map(([v,l])=>`<option value="${v}" ${S.obs===v?'selected':''}>${l}</option>`).join('')}</select>${noteBox('Obs','His exact response to the observation')}</div></div>`;
 }
 function distressCard(){
   if(!(A('F1')==='slide' && A('F2')==='stress') && !(A('F2')==='stress')) return '';
@@ -653,7 +684,7 @@ function distressCard(){
 /* ---------- close builder and readout ---------- */
 const trimQ = t => t.trim().replace(/[.!?]+$/,'');
 const lc1 = t => t ? t[0].toLowerCase()+t.slice(1) : t;
-function said(id, fallback){ const n=trimQ(S.n[id]||''); if(n) return `"${esc(n)}"`; const o=optOf(id); return o? o.l.toLowerCase() : `<span class="gap">[${fallback}]</span>`; }
+function said(id, fallback){ const n=trimQ(S.n[id]||''); if(n) return `‘${esc(n)}’`; const o=optOf(id); return o? o.l.toLowerCase() : `<span class="gap">[${fallback}]</span>`; }
 function closeSection(){
   const m=model(); const p=pathway(); const plan=m.plan;
   const gapSide = A('R2')||A('R4') ? (S.n.R2?said('R2','R2'): S.n.R4?said('R4','R4'): said('R4','R4 barrier')) : '<span class="gap">[R2 or R4, verbatim]</span>';
@@ -727,12 +758,13 @@ function renderReadout(){
 }
 function crmText(){
   const m=model(); const L=[];
-  L.push(`Prospect: ${S.prospect||'(unnamed)'}`); L.push(`Initiative: ${initiative()} | Engagement: ${engagementName(m.plan)}${['Enterprise','ValuIQ','Judgment call'].includes(m.plan)?' (12-month retainer)':''} | Branch: ${m.branch||'-'}`); L.push(`Enterprise drivers: ${m.entD.filter(d=>d.on).map(d=>d.k).join(', ')||'none'} | ValuIQ drivers: ${m.vqD.filter(d=>d.on).map(d=>d.k).join(', ')||'none'} | Internal owner: ${S.n.L2||'not named'}`);
+  L.push(`Prospect: ${S.prospect||'(unnamed)'} | Facilitator: ${S.facilitator||'not selected'} | Date: ${new Date().toISOString().slice(0,10)}`); L.push(`Initiative: ${initiative()} | Engagement: ${engagementName(m.plan)}${['Enterprise','ValuIQ','Judgment call'].includes(m.plan)?' (12-month retainer)':''} | Branch: ${m.branch||'-'}`); L.push(`Enterprise drivers: ${m.entD.filter(d=>d.on).map(d=>d.k).join(', ')||'none'} | ValuIQ drivers: ${m.vqD.filter(d=>d.on).map(d=>d.k).join(', ')||'none'} | Internal owner: ${S.n.L2||'not named'}`);
   L.push(`Mindset: ${m.style||'-'}; awareness ${m.awareness||'-'}; dependency ${m.depLevel||'-'}; capacity ${m.capacity||'-'}; partners ${A('PX')==='no'?'sole owner':(m.partner||'-')}; openness ${m.open||'-'}; readiness ${m.readiness??'-'}`);
-  SECTIONS.forEach(sec=>sec.qs.forEach(q=>{ if(!isVisible(q,sec)) return; const v=A(q.id); if(v==null) return;
-    const lbl = Array.isArray(v)? v.map(x=>q.opts.find(o=>o.v===x)?.l).join(', ') : (q.opts.find(o=>o.v===v)?.l||v);
-    L.push(`${q.id}: ${lbl}${S.n[q.id]?` | "${S.n[q.id]}"`:''}`); }));
-  if(S.obs) L.push(`Planned observation reaction: ${S.obs}`);
+  SECTIONS.forEach(sec=>{ if(sec.show && !sec.show()) return; sec.qs.forEach(q=>{ if(!isVisible(q,sec)) return; const v=A(q.id); if(v==null && !S.n[q.id]) return;
+    const lbl = v==null ? '(no answer selected)' : Array.isArray(v)? v.map(x=>q.opts.find(o=>o.v===x)?.l).join(', ') : (q.opts.find(o=>o.v===v)?.l||v);
+    L.push(`${q.id}: ${lbl}${S.n[q.id]?` | "${S.n[q.id]}"`:''}`); });
+    if(S.n['sec-'+sec.id]) L.push(`Notes, ${sec.title}: "${S.n['sec-'+sec.id]}"`); });
+  if(S.obs) L.push(`Planned observation reaction: ${S.obs}${S.n.Obs?` | "${S.n.Obs}"`:''}`);
   const flags=[...m.flags]; if(flags.length) L.push(`Flags: ${flags.join(', ')}`);
   return L.join('\n');
 }
@@ -764,19 +796,23 @@ document.addEventListener('change', e=>{
 document.addEventListener('input', e=>{ const t=e.target;
   if(t.matches('textarea[data-note]')){ S.n[t.dataset.note]=t.value; save(); clearTimeout(window._nt); window._nt=setTimeout(()=>{ renderReadout(); const c=document.getElementById('close'); if(c){ c.outerHTML = closeSection(); } },500); }
   else if(t.id==='prospect'){ S.prospect=t.value; save(); } });
+document.addEventListener('change', e=>{ if(e.target.id==='facilitator'){ S.facilitator=e.target.value; save(); syncWho(); if(location.hash==='#aar') renderAar(); } });
+function syncWho(){ const w=document.getElementById('facilitator'); w.value=S.facilitator||''; w.classList.toggle('need', !S.facilitator); }
+function setHdr(){ const h=document.querySelector('.bar'); if(h) document.documentElement.style.setProperty('--hdr', h.offsetHeight+'px'); }
+window.addEventListener('resize', setHdr);
 document.addEventListener('click', e=>{ const t=e.target;
   if(t.id==='tStart'){ if(S.timer.startedAt){ S.timer.acc=elapsed(); S.timer.startedAt=null; } else S.timer.startedAt=Date.now(); save(); tick(); }
   else if(t.id==='tReset'){ S.timer={acc:0,startedAt:null}; save(); tick(); }
   else if(t.id==='newCall'){ document.getElementById('newCallWrap').innerHTML = `<span>Clear all answers and notes?</span><button class="btn primary" id="newYes" type="button">Clear and start</button><button class="btn" id="newNo" type="button">Keep</button>`; }
   else if(t.id==='newNo'){ document.getElementById('newCallWrap').innerHTML = `<button class="btn primary" id="newCall" type="button">Start a new call</button>`; }
-  else if(t.id==='newYes'){ S=BLANK(); S.id='c'+Date.now(); S.aar={}; save(); document.getElementById('prospect').value=''; document.getElementById('newCallWrap').innerHTML = `<button class="btn primary" id="newCall" type="button">Start a new call</button>`; rerender(); window.scrollTo(0,0); }
+  else if(t.id==='newYes'){ const keepWho=S.facilitator; S=BLANK(); S.id='c'+Date.now(); S.aar={}; S.facilitator=keepWho; save(); document.getElementById('prospect').value=''; document.getElementById('newCallWrap').innerHTML = `<button class="btn primary" id="newCall" type="button">Start a new call</button>`; rerender(); window.scrollTo(0,0); }
   else if(t.id==='copyBtn'){ const txt=crmText(); const out=document.getElementById('copyOut'); const msg=document.getElementById('copyMsg');
     const fallback=()=>{ out.hidden=false; out.value=txt; out.focus(); out.select(); msg.textContent='Copy blocked here. The summary is selected; press Ctrl or Cmd + C.'; };
     try{ navigator.clipboard.writeText(txt).then(()=>{ msg.textContent='Copied. Paste it into the CRM record.'; }, fallback); }catch(err){ fallback(); } }
 });
 
 function treeHTML(m){
-  const rows = m.trace.map(g=>`<div class="gate ${g.pick?'reached':''}"><span class="gn">${esc(g.gate)}</span><span class="gopts">${g.opts.map(o=>`<span class="gopt ${o===g.pick?'pick':''}">${esc(o)}</span>`).join('')}</span>${g.note?`<span class="gnote">${esc(g.note)}</span>`:''}</div>`).join('');
+  const rows = m.trace.map(g=>`<div class="tgate ${g.pick?'reached':''}"><span class="gn">${esc(g.gate)}</span><span class="gopts">${g.opts.map(o=>`<span class="gopt ${o===g.pick?'pick':''}">${esc(o)}</span>`).join('')}</span>${g.note?`<span class="gnote">${esc(g.note)}</span>`:''}</div>`).join('');
   const res = m.plan==='Pending' ? 'Result pending' : m.plan==='Judgment call' ? `Judgment call, leans ${m.lean}` : m.plan;
   return `<div class="tree">${rows}<div class="tresult">Guideline: ${esc(res)}</div></div>`;
 }
@@ -788,9 +824,9 @@ const DECISIONS=['ValuIQ','Enterprise','Hold','Not ready / follow-up','Referred 
 function loadLog(){ try{ const r=localStorage.getItem(LOGKEY); if(r) return JSON.parse(r); }catch(e){} return EXAMPLE_LOG.slice(); }
 function saveLog(){ try{ localStorage.setItem(LOGKEY, JSON.stringify(LOG)); }catch(e){} }
 const EXAMPLE_LOG=[
- {id:'ex1', example:true, savedAt:'2026-10-14', prospect:'Example: Brightline Dental Group', initiative:'Exit initiative', branch:'Exit under 2 years', drivers:'complexity', profit:'$1M to $3M', guideline:'Judgment call, leans Enterprise', decision:'Enterprise', reason:'Buyer LOI expected in Q1; PE buyer will run full diligence.', outcome:'Signed Enterprise', outcomeDate:'2026-10-28', same:'Yes', expected:'Enterprise focused on Prepare', happened:'Signed after one follow-up', why:'Buyer timeline created urgency', differently:'Ask about the LOI terms on the first call'},
- {id:'ex2', example:true, savedAt:'2026-10-20', prospect:'Example: Caldwell Landscaping', initiative:'Growth initiative', branch:'Not selling', drivers:'internal labor', profit:'$250K to $500K', guideline:'Judgment call, leans ValuIQ', decision:'ValuIQ', reason:'Owner wants structure; budget tight.', outcome:'Signed ValuIQ', outcomeDate:'2026-11-02', same:'Yes', expected:'ValuIQ', happened:'Signed', why:'', differently:''},
- {id:'ex3', example:true, savedAt:'2026-10-27', prospect:'Example: Mercer Fabrication', initiative:'Exit and growth initiative', branch:'Exit 2 to 5 years', drivers:'growth, complexity, runway to grow', profit:'$1M to $3M', guideline:'Enterprise', decision:'Enterprise', reason:'', outcome:'Stalled', outcomeDate:'', same:'', expected:'Signed within two weeks', happened:'Partner not engaged', why:'Second partner never joined a call', differently:'Book the joint call before the proposal'}
+ {id:'ex1', example:true, savedAt:'2026-10-14', prospect:'Example: Brightline Dental Group', facilitator:'Bennett Lebowitz', initiative:'Exit initiative', branch:'Exit under 2 years', drivers:'complexity', profit:'$1M to $3M', guideline:'Judgment call, leans Enterprise', decision:'Enterprise', reason:'Buyer LOI expected in Q1; PE buyer will run full diligence.', outcome:'Signed Enterprise', outcomeDate:'2026-10-28', same:'Yes', expected:'Enterprise focused on Prepare', happened:'Signed after one follow-up', why:'Buyer timeline created urgency', differently:'Ask about the LOI terms on the first call'},
+ {id:'ex2', example:true, savedAt:'2026-10-20', prospect:'Example: Caldwell Landscaping', facilitator:'Mark Jacobsen', initiative:'Growth initiative', branch:'Not selling', drivers:'internal labor', profit:'$250K to $500K', guideline:'Judgment call, leans ValuIQ', decision:'ValuIQ', reason:'Owner wants structure; budget tight.', outcome:'Signed ValuIQ', outcomeDate:'2026-11-02', same:'Yes', expected:'ValuIQ', happened:'Signed', why:'', differently:''},
+ {id:'ex3', example:true, savedAt:'2026-10-27', prospect:'Example: Mercer Fabrication', facilitator:'Eric Terry', initiative:'Exit and growth initiative', branch:'Exit 2 to 5 years', drivers:'growth, complexity, runway to grow', profit:'$1M to $3M', guideline:'Enterprise', decision:'Enterprise', reason:'', outcome:'Stalled', outcomeDate:'', same:'', expected:'Signed within two weeks', happened:'Partner not engaged', why:'Second partner never joined a call', differently:'Book the joint call before the proposal'}
 ];
 let LOG = loadLog();
 S.aar = S.aar || {};
@@ -812,7 +848,7 @@ function renderAar(){
   const branches = ['Exit under 2 years','Exit 2 to 5 years','No defined timeline','Not selling'];
   const byBranch = branches.map(b=>{ const rs=LOG.filter(r=>r.branch===b); const sg=rs.filter(r=>/^Signed/.test(r.outcome)).length; return `<div class="stat"><div class="big">${rs.length?sg+'/'+rs.length:'-'}</div><div class="lbl">Signed: ${esc(b)}</div></div>`; }).join('');
   document.getElementById('viewAar').innerHTML = `<div class="aar">
-   <div class="sec-h"><h2>After Action Review: ${esc(S.prospect||'this call')}</h2><span class="clk">${esc(initiative())}</span></div>
+   <div class="sec-h"><h2>After Action Review: ${esc(S.prospect||'this call')}</h2><span class="clk">${esc(S.facilitator||'Facilitator not selected')} &middot; ${esc(initiative())}</span></div>
    <p class="sec-intro">The pathway rules are guidelines. This page records what the guideline said, what we decided, and how it turned out, so the guidelines can be tuned from our own deals.</p>
    <div class="aar-grid">
      <div class="panel"><h3>Decision path for this call</h3>${treeHTML(m)}<p class="sig" style="margin:10px 0 0">${esc(m.why||'')}</p></div>
@@ -836,10 +872,10 @@ function renderAar(){
      <div class="stat"><div class="big">${closedN?Math.round(signed/closedN*100)+'%':'-'}</div><div class="lbl">Signed, of closed outcomes</div></div>
      ${byBranch}
    </div>
-   <div class="tablewrap"><table class="log"><thead><tr><th>Date</th><th>Prospect</th><th>Branch</th><th>Drivers met</th><th>Guideline</th><th>Decided</th><th>Why</th><th>Outcome</th><th></th></tr></thead><tbody>
-   ${LOG.length? LOG.map(r=>`<tr><td>${esc(r.savedAt)}</td><td>${esc(r.prospect)}</td><td>${esc(r.branch||'-')}</td><td>${esc(r.drivers||'-')}</td><td>${esc(r.guideline)}</td><td>${esc(r.decision||'-')}</td><td>${esc(r.reason||'')}</td>
+   <div class="tablewrap"><table class="log"><thead><tr><th>Date</th><th>Prospect</th><th>Facilitator</th><th>Branch</th><th>Drivers met</th><th>Guideline</th><th>Decided</th><th>Why</th><th>Outcome</th><th></th></tr></thead><tbody>
+   ${LOG.length? LOG.map(r=>`<tr><td>${esc(r.savedAt)}</td><td>${esc(r.prospect)}</td><td>${esc(r.facilitator||'-')}</td><td>${esc(r.branch||'-')}</td><td>${esc(r.drivers||'-')}</td><td>${esc(r.guideline)}</td><td>${esc(r.decision||'-')}</td><td>${esc(r.reason||'')}</td>
      <td><select data-log="${esc(r.id)}" aria-label="Outcome for ${esc(r.prospect)}">${OUTCOMES.map(o=>`<option ${r.outcome===o?'selected':''}>${o}</option>`).join('')}</select></td>
-     <td><button class="lnk" data-del="${esc(r.id)}" type="button">Remove</button></td></tr>`).join('') : `<tr><td colspan="9">No reviews saved yet. Complete a call, record the decision above, and save it here.</td></tr>`}
+     <td><button class="lnk" data-del="${esc(r.id)}" type="button">Remove</button></td></tr>`).join('') : `<tr><td colspan="10">No reviews saved yet. Complete a call, record the decision above, and save it here.</td></tr>`}
    </tbody></table></div>
    <div class="actions">${LOG.some(r=>r.example)?'<button class="btn" id="clearEx" type="button">Remove example records</button>':''}<button class="btn" id="copyCsv" type="button">Copy log as CSV</button><span class="sig" id="csvMsg"></span></div>
    <textarea class="copyout" id="csvOut" readonly hidden aria-label="AAR log CSV"></textarea>
@@ -847,13 +883,13 @@ function renderAar(){
 }
 function saveAarRecord(){
   const m=model(); const a=S.aar; if(!S.id) S.id='c'+Date.now();
-  const rec={ id:S.id, savedAt:new Date().toISOString().slice(0,10), prospect:S.prospect||'(unnamed)', initiative:initiative(), branch:m.branch||'', drivers:m.entD.filter(d=>d.on).map(d=>d.k.toLowerCase()).join(', '),
+  const rec={ id:S.id, savedAt:new Date().toISOString().slice(0,10), prospect:S.prospect||'(unnamed)', facilitator:S.facilitator||'', initiative:initiative(), branch:m.branch||'', drivers:m.entD.filter(d=>d.on).map(d=>d.k.toLowerCase()).join(', '),
     profit:(optOf('F3')||{}).l||'', guideline:guideText(m), decision:a.decision, reason:a.reason, decidedBy:a.decidedBy, expected:a.expected, happened:a.happened, why:a.why, differently:a.differently, outcome:a.outcome||'Open', outcomeDate:a.outcomeDate, same:a.same,
     mindset:[m.style,m.awareness,m.depLevel,m.capacity].filter(Boolean).join('; '), readiness:m.readiness??'' };
   const i=LOG.findIndex(r=>r.id===rec.id); if(i>=0) LOG[i]=rec; else LOG.unshift(rec); saveLog(); save(); renderAar();
   const msg=document.getElementById('aarMsg'); if(msg) msg.textContent='Saved. Update the outcome here or in the log as it changes.';
 }
-function csv(){ const cols=['savedAt','prospect','initiative','branch','drivers','profit','mindset','readiness','guideline','decision','decidedBy','reason','expected','happened','why','differently','outcome','outcomeDate','same'];
+function csv(){ const cols=['savedAt','prospect','facilitator','initiative','branch','drivers','profit','mindset','readiness','guideline','decision','decidedBy','reason','expected','happened','why','differently','outcome','outcomeDate','same'];
   const q=v=>`"${String(v??'').replace(/"/g,'""')}"`; return [cols.join(','), ...LOG.map(r=>cols.map(c=>q(r[c])).join(','))].join('\n'); }
 function route(){ const aar = location.hash==='#aar'; document.getElementById('viewCall').hidden=aar; document.getElementById('viewAar').hidden=!aar; document.getElementById('exampleBar').hidden=aar;
   document.getElementById('tabCall').classList.toggle('on',!aar); document.getElementById('tabAar').classList.toggle('on',aar); if(aar) renderAar(); }
@@ -870,7 +906,7 @@ document.addEventListener('click', e=>{ const t=e.target;
     const fb=()=>{ out.hidden=false; out.value=txt; out.focus(); out.select(); msg.textContent='Copy blocked here. The CSV is selected; press Ctrl or Cmd + C.'; };
     try{ navigator.clipboard.writeText(txt).then(()=>{ msg.textContent='Copied. Paste into a spreadsheet.'; }, fb); }catch(err){ fb(); } } });
 
-load(); document.getElementById('prospect').value=S.prospect||''; rerender(); route(); setInterval(tick,1000);
+load(); document.getElementById('prospect').value=S.prospect||''; syncWho(); rerender(); route(); setHdr(); setTimeout(setHdr,400); setInterval(tick,1000);
 // rail highlight
 const io = 'IntersectionObserver' in window ? new IntersectionObserver(es=>{ es.forEach(en=>{ if(en.isIntersecting){ document.querySelectorAll('.rail a').forEach(a=>a.classList.toggle('on', a.dataset.sec===en.target.id)); } }); }, {rootMargin:'-140px 0px -60% 0px'}) : null;
 function observe(){ if(!io) return; io.disconnect(); document.querySelectorAll('.sec').forEach(s=>io.observe(s)); }
